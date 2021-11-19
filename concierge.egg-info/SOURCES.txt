@@ -1,8 +1,0 @@
-README.md
-setup.py
-concierge.egg-info/PKG-INFO
-concierge.egg-info/SOURCES.txt
-concierge.egg-info/dependency_links.txt
-concierge.egg-info/not-zip-safe
-concierge.egg-info/requires.txt
-concierge.egg-info/top_level.txt
