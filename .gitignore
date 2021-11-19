@@ -1,0 +1,12 @@
+.DS_Store
+model
+*.pyc
+__pycache__
+*.db
+concierge.egg-info
+build/
+dist
+data/
+concierge/bin/config_welco.json
+test/*.sav
+config.test.json

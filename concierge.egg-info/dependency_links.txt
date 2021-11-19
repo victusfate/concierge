@@ -1,0 +1,2 @@
+git+https://github.com/victusfate/rsyslog_cee.git@main#egg=rsyslog_cee
+git+https://github.com/victusfate/bandolier.git@main#egg=bandolier
