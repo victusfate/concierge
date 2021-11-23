@@ -3,6 +3,12 @@ from river import metrics,stats
 from river import meta,optim,reco
 from river.evaluate import progressive_val_score
 
+from river import compose
+from river import facto
+from river import meta
+from river import optim
+from river import stats
+
 def ratings(df,threshold = 0):
   dataset = []
   for user_item_score in df.itertuples():
@@ -28,43 +34,37 @@ def data_stats(dataset):
       if not i % 1_000:
           print(f'[{i:,d}] {metric}')
 
-#adding to the global running mean two bias terms characterizing the user and the item discrepancy from the general tendency. The model equation is defined as:
-# yhat(x) = ybar + bu_{u} + bi_{i}
-def baseline(dataset):
-  baseline_params = {
-    'optimizer': optim.SGD(0.025),
-    'l2': 0.,
-    'initializer': optim.initializers.Zeros()
+# mimic biased matrix factorization, funk svd combination of baseline + funkmf
+# yhat(x) = ybar + bu_{u} + bi_{i} + <v_{u},v_{i}>
+def mimic_bmf(dataset):
+  fm_params = {
+    'n_factors': 10,
+    'weight_optimizer': optim.SGD(0.025),
+    'latent_optimizer': optim.SGD(0.05),
+    'sample_normalization': False,
+    'l1_weight': 0.,
+    'l2_weight': 0.,
+    'l1_latent': 0.,
+    'l2_latent': 0.,
+    'intercept': 3,
+    'intercept_lr': .01,
+    'weight_initializer': optim.initializers.Zeros(),
+    'latent_initializer': optim.initializers.Normal(mu=0., sigma=0.1, seed=73),
   }
+
+  regressor = compose.Select('user', 'item')
+  regressor |= facto.FMRegressor(**fm_params)
+
   model = meta.PredClipper(
-    regressor=reco.Baseline(**baseline_params),
+    regressor=regressor,
     y_min=1,
     y_max=5
   )
   evaluate(dataset,model)
 
-# biased matrix factorization, funk svd combination of baseline + funkmf
-# yhat(x) = ybar + bu_{u} + bi_{i} + <v_{u},v_{i}>
-def bmf(dataset):
-  biased_mf_params = {
-    'n_factors': 10,
-    'bias_optimizer': optim.SGD(0.025),
-    'latent_optimizer': optim.SGD(0.05),
-    'weight_initializer': optim.initializers.Zeros(),
-    'latent_initializer': optim.initializers.Normal(mu=0., sigma=0.1, seed=73),
-    'l2_bias': 0.,
-    'l2_latent': 0.
-  }
-  model = meta.PredClipper(
-    regressor=reco.BiasedMF(**biased_mf_params),
-    y_min=1,
-    y_max=5
-  )
-  evaluate(dataset,model)  
 
 user_item_scores_file = '/tmp/placeScores.csv'
 df = data_io.load_dataset(',',user_item_scores_file)
 dataset = ratings(df,0)
 data_stats(dataset)
-baseline(dataset) # [950,000] MAE: 0.544277, RMSE: 0.98347 – 0:00:41.427565 – 36.36 MB
-# bmf(dataset) # [950,000] MAE: 0.545842, RMSE: 0.983413 – 0:02:44.577370 – 196.4 MB
+mimic_bmf(dataset)
