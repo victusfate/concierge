@@ -3,13 +3,17 @@ from setuptools import setup
 from setuptools import find_packages
 
 reqs = [
-  'sanic==21.9.*'
+  'sanic==21.9.*',
+  'river==0.8.*',
+  'sh',
+  'psutil==5.6.*',
+  'python-consul==1.1.*'
 ]
 
 setup(
   name='concierge',
   version='0.1.0',
-  description='realtime recommendation engine',
+  description='continuous recommendation engine',
   url='https://github.com/victusfate/concierge',
   author='victusfate',
   author_email='messel@gmail.com',
