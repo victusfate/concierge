@@ -7,7 +7,8 @@ reqs = [
   'river==0.8.*',
   'sh',
   'psutil==5.6.*',
-  'python-consul==1.1.*'
+  'python-consul==1.1.*',
+  'redis==3.5.*'
 ]
 
 setup(

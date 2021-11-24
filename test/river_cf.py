@@ -65,8 +65,8 @@ def bmf(metric,dataset):
   }
   model = meta.PredClipper(
     regressor=reco.BiasedMF(**biased_mf_params),
-    y_min=1,
-    y_max=5
+    y_min=-1,
+    y_max=2
   )
   # evaluate(model,metric,dataset) # [950,000] MAE: 0.545842, RMSE: 0.983413 – 0:02:44.577370 – 196.4 MB
   return model
@@ -77,6 +77,8 @@ dataset = ratings(df,0)
 # data_stats(metric,dataset)
 mf = baseline(metric,dataset) 
 learn(mf,metric,dataset)
+print('metric',metric)
+print('model',mf)
 model_file = '/tmp/mf.sav'
 metric_file = '/tmp/metric.sav'
 pickle.dump(mf,    open(model_file, 'wb'))
