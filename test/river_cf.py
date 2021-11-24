@@ -121,17 +121,17 @@ user_item_scores_file = '/tmp/placeScores.csv'
 df = data_io.load_dataset(',',user_item_scores_file)
 dataset = ratings(df,0)
 # data_stats(metric,dataset)
-# # model = baseline()
+# model = baseline()
 # model = bmf()
-model = fm()
+# model = fm()
 
-tLearnStart = time.time()
-metric, model = learn(model,metric,dataset)
-tLearnEnd = time.time()
+# tLearnStart = time.time()
+# metric, model = learn(model,metric,dataset)
+# tLearnEnd = time.time()
 
-tCacheSetStart = time.time()
-cacheSetMetricAndModel(metric,model)
-tCacheSetEnd = time.time()
+# tCacheSetStart = time.time()
+# cacheSetMetricAndModel(metric,model)
+# tCacheSetEnd = time.time()
 
 # make sure it works
 tCacheGetStart = time.time()
@@ -152,8 +152,8 @@ tCacheGetEnd = time.time()
 print('metric',metric)
 print('model',model)
 
-print('tLearn',tLearnEnd-tLearnStart)
-print('tCacheSet',tCacheSetEnd-tCacheSetStart)
+# print('tLearn',tLearnEnd-tLearnStart)
+# print('tCacheSet',tCacheSetEnd-tCacheSetStart)
 print('tCacheGet',tCacheGetEnd-tCacheGetStart)
 evaluate(model,metric,dataset)
 
