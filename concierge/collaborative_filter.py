@@ -32,9 +32,8 @@ class CollaborativeFilter:
     return dataset
 
   def cache_get_metric_and_model(self):
-    metric = pickle.loads(cache.get(METRIC_KEY))
-    model  = pickle.loads(cache.get(MODEL_KEY))
-    return metric,model
+    self.metric = pickle.loads(cache.get(METRIC_KEY))
+    self.model  = pickle.loads(cache.get(MODEL_KEY))
 
   def cache_set_metric_and_model(self):
     cache.set(METRIC_KEY,pickle.dumps(self.metric))
@@ -69,8 +68,10 @@ class CollaborativeFilter:
       self.metric = self.metric.update(y, y_pred)  # update the metric
       self.model = self.model.learn_one(x, y)      # make the model learn 
 
-  #adding to the global running mean two bias terms characterizing the user and the item discrepancy from the general tendency. The model equation is defined as:
-  # yhat(x) = ybar + bu_{u} + bi_{i}
+  # adding to the global running mean two bias terms characterizing the user and 
+  # the item discrepancy from the general tendency. 
+  # The model equation is defined as:
+  #   yhat(x) = ybar + bu_{u} + bi_{i}
   def baseline_model():
     baseline_params = {
       'optimizer': optim.SGD(0.025),
@@ -85,7 +86,7 @@ class CollaborativeFilter:
     return model
 
   # biased matrix factorization, funk svd combination of baseline + funkmf
-  # yhat(x) = ybar + bu_{u} + bi_{i} + <v_{u},v_{i}>
+  #   yhat(x) = ybar + bu_{u} + bi_{i} + <v_{u},v_{i}>
   def bmf_model():
     biased_mf_params = {
       'n_factors': 10,
@@ -104,6 +105,8 @@ class CollaborativeFilter:
     return model
 
   # https://riverml.xyz/latest/examples/matrix-factorization-for-recommender-systems-part-2/
+  #     yhat(x) = w0 + sumj=1->p(wjxj) + sumj=1->p(sumj'=j+1->p(<vj,vj'>xjxj'))
+  #     <vj,vj'> = sumf=1->k(vj,f dot vj',f) (dot product of the latent factor vectors)
   def fm_model():
     fm_params = {
       'n_factors': 10,
