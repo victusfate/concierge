@@ -78,6 +78,9 @@ training_queue           = None
 s3                       = None
 CONSUL_HOST              = None
 
+MIN_PLACE_SCORE = -1.0
+MAX_PLACE_SCORE =  2.0
+
 def setConfig(env=None):
   global CONSUL_HOST, CONFIG, ENVIRONMENT, TRAINING_QUEUE_ROOT_NAME
   global AWS_REGION, AWS_BUCKET, AWS_BUCKET_INTERNAL, REDIS_HOST
