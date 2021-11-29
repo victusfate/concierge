@@ -117,7 +117,7 @@ class CollaborativeFilter:
       'l2_weight': 0.,
       'l1_latent': 0.,
       'l2_latent': 0.,
-      'intercept': 3,
+      'intercept': 1, # mean of scoring
       'intercept_lr': .01,
       'weight_initializer': optim.initializers.Zeros(),
       'latent_initializer': optim.initializers.Normal(mu=0., sigma=0.1, seed=73),
