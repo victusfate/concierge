@@ -23,7 +23,7 @@ log.reset()
 # == Main Thread Data Processing ===============================================
 # ==============================================================================
 
-RATINGS_FILE     = "/tmp/placeScores.csv"
+RATINGS_FILE     = '/tmp/placeScores.csv'
 
 ITEM_COLUMN      = 'item_id'
 RATING_COLUMN    = 'rating'

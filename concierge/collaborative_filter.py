@@ -1,5 +1,7 @@
 import pandas as pd
 import time
+import json
+import os
 import pickle
 from concierge import data_io
 from concierge import constants
@@ -7,18 +9,23 @@ from river import metrics,stats,compose,facto
 from river import meta,optim,reco
 from river.evaluate import progressive_val_score
 import redis
+import asyncio
+import async_timeout
+import aioredis
 
-
-cache = redis.Redis(host='localhost', port=6379, db=0)   
+REDIS_HOST = 'localhost'
+cache = redis.Redis(host=REDIS_HOST, port=6379, db=0)   
 
 METRIC_KEY = 'river_metric'
 MODEL_KEY  = 'river_model'
 
-MODEL_FILE  = '/tmp/model.sav'
-METRIC_FILE = '/tmp/metric.sav'
+DEFAULT_PATH = '/tmp'
+MODEL_FILE  = 'model.sav'
+METRIC_FILE = 'metric.sav'
 
 class CollaborativeFilter:
   def __init__(self,model,metric = metrics.MAE() + metrics.RMSE()):
+    self.channel = None
     self.model   = model
     self.metric  = metric
 
@@ -40,13 +47,49 @@ class CollaborativeFilter:
     cache.set(MODEL_KEY,pickle.dumps(self.model))
 
   # old file IO
-  def save_to_file(self):
-    pickle.dump(self.model,open(MODEL_FILE, 'wb'))
-    pickle.dump(self.metric,open(METRIC_FILE,'wb'))
+  def save_to_file(self,file_path = DEFAULT_PATH):
+    model_path = os.path.join(file_path,MODEL_FILE)
+    metric_path = os.path.join(file_path,METRIC_FILE)
+    pickle.dump(self.model,open(model_path,'wb'))
+    pickle.dump(self.metric,open(metric_path,'wb'))
 
-  def load_from_file(self):
-    self.model  = pickle.load(open(MODEL_FILE, 'rb'))
-    self.metric = pickle.load(open(METRIC_FILE, 'rb'))
+  def load_from_file(self,file_path = DEFAULT_PATH):
+    model_path = os.path.join(file_path,MODEL_FILE)
+    metric_path = os.path.join(file_path,METRIC_FILE)
+    self.model  = pickle.load(open(model_path,'rb'))
+    self.metric = pickle.load(open(metric_path,'rb'))
+
+  async def subscribe_to_updates(self,channel):
+    self.channel = channel
+    async def reader(channel: aioredis.client.PubSub):
+      while True:
+        try:
+          async with async_timeout.timeout(1):
+            message = await channel.get_message(ignore_subscribe_messages=True)
+            if message is not None:
+              print(f"(Reader) Message Received: {message}")
+              smessage = message["data"].decode()
+              message_data = json.loads(smessage)
+              dataset = []
+              if not isinstance(message_data, list):
+                message_data = [message_data]
+              for update in message_data:
+                user_id = update['user_id']
+                item_id = update['item_id']
+                rating  = update['rating']
+                dataset.append(({'user': user_id,'item': item_id},rating))
+
+              for x, y in dataset:
+                y_pred = self.model.predict_one(x)      # make a prediction
+                self.metric = self.metric.update(y, y_pred)  # update the metric
+                self.model = self.model.learn_one(x, y)      # make the model learn 
+            await asyncio.sleep(0.01)
+        except asyncio.TimeoutError:
+          pass
+    redis = await aioredis.from_url('redis://' + REDIS_HOST,port=6379, db=0)
+    pubsub = redis.pubsub()
+    await pubsub.subscribe(self.channel)
+    await asyncio.create_task(reader(pubsub))
 
   # note also modifies the model + metrics
   def evaluate(self,dataset):

@@ -8,7 +8,8 @@ reqs = [
   'sh',
   'psutil==5.6.*',
   'python-consul==1.1.*',
-  'redis==3.5.*'
+  'redis==3.5.*',
+  'aioredis==2.0.*'
 ]
 
 setup(
