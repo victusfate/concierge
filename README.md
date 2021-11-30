@@ -8,3 +8,5 @@ In progress:
 
 1. using [river-ml](https://riverml.xyz/)
 2. using [sanic](https://sanic.readthedocs.io/)
+
+Released under the MIT License
