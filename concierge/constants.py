@@ -64,9 +64,8 @@ ITEM_DTYPE = np.int32
 CITY_DTYPE = np.int32
 
 MODELS_PATH              = 'concierge/models'
-ALS_MODELS_PATH          = 'concierge/als_models'
 AWS_REGION               = 'us-east-1'
-AWS_BUCKET               = None
+AWS_BUCKET               = 'welcome.local'
 AWS_BUCKET_INTERNAL      = None
 TRAINING_QUEUE_ROOT_NAME = None
 CONFIG                   = {}

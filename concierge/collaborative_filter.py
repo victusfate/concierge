@@ -46,7 +46,7 @@ class CollaborativeFilter:
     cache.set(METRIC_KEY,pickle.dumps(self.metric))
     cache.set(MODEL_KEY,pickle.dumps(self.model))
 
-  # old file IO
+  # file IO
   def save_to_file(self,file_path = DEFAULT_PATH):
     model_path = os.path.join(file_path,MODEL_FILE)
     metric_path = os.path.join(file_path,METRIC_FILE)
@@ -58,6 +58,26 @@ class CollaborativeFilter:
     metric_path = os.path.join(file_path,METRIC_FILE)
     self.model  = pickle.load(open(model_path,'rb'))
     self.metric = pickle.load(open(metric_path,'rb'))
+
+  def export_to_s3(self,file_path = DEFAULT_PATH,bucket_path = constants.MODELS_PATH):
+    timestamp = int(time.time())
+    self.save_to_file(file_path)
+    model_path = os.path.join(file_path,MODEL_FILE)
+    metric_path = os.path.join(file_path,METRIC_FILE)
+    # concierge/models/y-m-d/{timestamp}/{model/metric}.sav path
+    constants.s3.put(model_path,os.path.join(bucket_path,str(timestamp),MODEL_FILE))
+    constants.s3.put(metric_path,os.path.join(bucket_path,str(timestamp),METRIC_FILE))
+    # concierge/models/latest/{model/metric}.sav path
+    constants.s3.put(model_path,os.path.join(bucket_path,'latest',MODEL_FILE))
+    constants.s3.put(metric_path,os.path.join(bucket_path,'latest',METRIC_FILE))
+
+  def import_from_s3(self,file_path = DEFAULT_PATH,bucket_path = constants.MODELS_PATH):
+    model_path = os.path.join(file_path,MODEL_FILE)
+    metric_path = os.path.join(file_path,METRIC_FILE)
+    # concierge/models/latest/{model/metric}.sav path
+    constants.s3.get(os.path.join(bucket_path,'latest',MODEL_FILE),model_path)
+    constants.s3.get(os.path.join(bucket_path,'latest',METRIC_FILE),metric_path)
+    self.load_from_file(file_path)
 
   async def subscribe_to_updates(self,channel):
     self.channel = channel
