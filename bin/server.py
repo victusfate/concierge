@@ -7,6 +7,9 @@ import requests
 from concierge.collaborative_filter import CollaborativeFilter
 import redis
 import asyncio
+import os
+import psutil
+
 # import async_timeout
 # import aioredis
 # import aiohttp
@@ -26,16 +29,28 @@ print('metric',cf.metric)
 print('model',cf.model)
 print('tCacheGet',tCacheGetEnd-tCacheGetStart)
 
-
 @app.route('/')
-async def test(request):
-    return sanic_json({'hello': 'world'})
+async def index(request):
+  return sanic_json({'message': 'yup'})
 
-@app.route('/user/<user_id>/places/<places_str>')
-async def user_places(request,user_id=None,places_str=''):
+@app.route('/health')
+async def health(request):    
+  pid = os.getpid()
+  process = psutil.Process(pid)
+  memory_bytes = process.memory_info().rss  # in bytes 
+  logs = {
+    'service': 'Concierge',
+    'purpose': 'Concierge',
+    'process': pid,
+    'memory': memory_bytes 
+  }
+  return sanic_json(logs)
+
+@app.route('/user/<user_id>/items/<items_str>')
+async def user_places(request,user_id=None,items_str=''):
   global cf
-  place_ids = places_str.split(',')
-  return sanic_json(cf.predict(user_id,place_ids))
+  item_ids = items_str.split(',')
+  return sanic_json(cf.predict(user_id,item_ids))
 
 async def sub():
   global cf
