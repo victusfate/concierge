@@ -10,12 +10,13 @@ import redis
 cache = redis.Redis(host='localhost', port=6379, db=0)   
 
 df = data_io.load_dataset(',',constants.RATINGS_FILE)
-dataset = CollaborativeFilter.df_to_dataset(df)
+max_ts,dataset = CollaborativeFilter.df_to_timestamp_and_dataset(df)
 cf = CollaborativeFilter(CollaborativeFilter.fm_model(),metrics.MAE() + metrics.RMSE())
+cf.timestamp = max_ts
 
 # cf.data_stats(dataset)
 tLearnStart = time.time()
-cf.learn(dataset)
+cf.learn(dataset,max_ts)
 # cf.evaluate(dataset)
 tLearnEnd = time.time()
 print('tLearn',tLearnEnd-tLearnStart)

@@ -23,20 +23,25 @@ DEFAULT_PATH = '/tmp'
 MODEL_FILE  = 'model.sav'
 METRIC_FILE = 'metric.sav'
 
+
 class CollaborativeFilter:
   def __init__(self,model,metric = metrics.MAE() + metrics.RMSE()):
     self.channel = None
     self.model   = model
     self.metric  = metric
 
-  def df_to_dataset(df):
+  def df_to_timestamp_and_dataset(df):
     dataset = []
+    max_ts  = None
     for user_item_score in df.itertuples():
       user_id = user_item_score.user_id
       item_id = user_item_score.item_id
       rating  = user_item_score.rating
+      ts      = user_item_score.timestamp
+      if max_ts is None or ts > max_ts:
+        max_ts = ts
       dataset.append(({'user': user_id,'item': item_id},rating))
-    return dataset
+    return max_ts,dataset
 
   def cache_get_metric_and_model(self):
     self.metric = pickle.loads(cache.get(METRIC_KEY))
@@ -60,7 +65,7 @@ class CollaborativeFilter:
     self.metric = pickle.load(open(metric_path,'rb'))
 
   def export_to_s3(self,file_path = DEFAULT_PATH,bucket_path = constants.MODELS_PATH):
-    timestamp = int(time.time())
+    timestamp = self.timestamp
     self.save_to_file(file_path)
     model_path = os.path.join(file_path,MODEL_FILE)
     metric_path = os.path.join(file_path,METRIC_FILE)
@@ -93,16 +98,22 @@ class CollaborativeFilter:
               dataset = []
               if not isinstance(message_data, list):
                 message_data = [message_data]
+              max_ts = None
               for update in message_data:
                 user_id = update['user_id']
                 item_id = update['item_id']
                 rating  = update['rating']
+                ts      = update['timestamp']
                 dataset.append(({'user': user_id,'item': item_id},rating))
+                if max_ts is None or ts > max_ts:
+                  max_ts = ts
 
               for x, y in dataset:
                 y_pred = self.model.predict_one(x)      # make a prediction
                 self.metric = self.metric.update(y, y_pred)  # update the metric
-                self.model = self.model.learn_one(x, y)      # make the model learn 
+                self.model = self.model.learn_one(x, y)      # make the model learn
+              if self.model.timestamp is None or max_ts > self.model.timestamp:
+                self.model.timestamp = max_ts
             await asyncio.sleep(0.01)
         except asyncio.TimeoutError:
           pass
@@ -112,24 +123,16 @@ class CollaborativeFilter:
     await asyncio.create_task(reader(pubsub))
 
   # note also modifies the model + metrics
-  def evaluate(self,dataset):
+  def evaluate(self,dataset,max_ts):
       _ = progressive_val_score(dataset,self.model, self.metric, print_every=25_000, show_time=True, show_memory=True)
+      self.model.timestamp = max_ts
 
-  def data_stats(dataset):
-    mean = stats.Mean()
-    for i, x_y in enumerate(dataset, start=1):
-        _, y = x_y
-        metric.update(y, mean.get())
-        mean.update(y)
-
-        if not i % 1_000:
-            print(f'[{i:,d}] {metric}')
-
-  def learn(self,dataset):
+  def learn(self,dataset,max_ts):
     for x, y in dataset:
       y_pred = self.model.predict_one(x)      # make a prediction
       self.metric = self.metric.update(y, y_pred)  # update the metric
-      self.model = self.model.learn_one(x, y)      # make the model learn 
+      self.model = self.model.learn_one(x, y)      # make the model learn
+    self.model.timestamp = max_ts
 
   # adding to the global running mean two bias terms characterizing the user and 
   # the item discrepancy from the general tendency. 
