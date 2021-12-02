@@ -114,6 +114,7 @@ class CollaborativeFilter:
                 self.model = self.model.learn_one(x, y)      # make the model learn
               if self.model.timestamp is None or max_ts > self.model.timestamp:
                 self.model.timestamp = max_ts
+                print('updated model timestamp',self.model.timestamp)
             await asyncio.sleep(0.01)
         except asyncio.TimeoutError:
           pass

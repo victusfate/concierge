@@ -23,10 +23,11 @@ cache = redis.Redis(host='localhost', port=6379, db=0)
 
 cf = CollaborativeFilter(None)
 tCacheGetStart = time.time()
-cf.cache_get_metric_and_model()
+cf.import_from_s3()
 tCacheGetEnd = time.time()
 print('metric',cf.metric)
 print('model',cf.model)
+print('timestamp',cf.model.timestamp)
 print('tCacheGet',tCacheGetEnd-tCacheGetStart)
 
 @app.route('/')
