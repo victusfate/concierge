@@ -19,11 +19,13 @@ cache = redis.Redis(host='localhost', port=6379, db=0)
 df = data_io.load_dataset(',','/Users/messel/Desktop/deltaScores.csv')
 
 ordered_data = {}
+now = int(time.time())
 for user_item_score in df.itertuples():
   user_id = user_item_score.user_id
   item_id = user_item_score.item_id
   rating  = user_item_score.rating
-  ts      = user_item_score.timestamp
+  # ts      = user_item_score.timestamp
+  ts      = now
   event = {'user_id':user_id,'item_id':item_id,'rating':rating,'timestamp':ts}
   sevent = json.dumps(event)
   ordered_data[sevent] = ts

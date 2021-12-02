@@ -23,6 +23,8 @@ DEFAULT_PATH = '/tmp'
 MODEL_FILE  = 'model.sav'
 METRIC_FILE = 'metric.sav'
 
+FEED_EVENTS = 'feed_events'
+
 
 class CollaborativeFilter:
   def __init__(self,model,metric = metrics.MAE() + metrics.RMSE()):
@@ -84,6 +86,34 @@ class CollaborativeFilter:
     constants.s3.get(os.path.join(bucket_path,'latest',METRIC_FILE),metric_path)
     self.load_from_file(file_path)
 
+  def update_model(self,message_data):
+    dataset = []
+    max_ts = None
+    for update in message_data:
+      user_id = update['user_id']
+      item_id = update['item_id']
+      rating  = update['rating']
+      ts      = update['timestamp']
+      dataset.append(({'user': user_id,'item': item_id},rating))
+      if max_ts is None or ts > max_ts:
+        max_ts = ts    
+    for x, y in dataset:
+      y_pred = self.model.predict_one(x)      # make a prediction
+      self.metric = self.metric.update(y, y_pred)  # update the metric
+      self.model = self.model.learn_one(x, y)      # make the model learn   
+    if self.model.timestamp is None or max_ts > self.model.timestamp:
+      self.model.timestamp = max_ts
+      print('updated model timestamp',self.model.timestamp)
+
+
+  def delta_update(self):
+    raw_updates = cache.zrangebyscore(FEED_EVENTS,self.model.timestamp,'inf')
+    message_data = []
+    for update in raw_updates:
+      update = update.decode('utf-8')
+      message_data.append(json.loads(update))
+    self.update_model(message_data)
+
   async def subscribe_to_updates(self,channel):
     self.channel = channel
     async def reader(channel: aioredis.client.PubSub):
@@ -92,29 +122,12 @@ class CollaborativeFilter:
           async with async_timeout.timeout(1):
             message = await channel.get_message(ignore_subscribe_messages=True)
             if message is not None:
-              print(f"(Reader) Message Received: {message}")
               smessage = message["data"].decode()
+              print(f"(Reader) Message Received: {smessage}")
               message_data = json.loads(smessage)
-              dataset = []
               if not isinstance(message_data, list):
                 message_data = [message_data]
-              max_ts = None
-              for update in message_data:
-                user_id = update['user_id']
-                item_id = update['item_id']
-                rating  = update['rating']
-                ts      = update['timestamp']
-                dataset.append(({'user': user_id,'item': item_id},rating))
-                if max_ts is None or ts > max_ts:
-                  max_ts = ts
-
-              for x, y in dataset:
-                y_pred = self.model.predict_one(x)      # make a prediction
-                self.metric = self.metric.update(y, y_pred)  # update the metric
-                self.model = self.model.learn_one(x, y)      # make the model learn
-              if self.model.timestamp is None or max_ts > self.model.timestamp:
-                self.model.timestamp = max_ts
-                print('updated model timestamp',self.model.timestamp)
+              self.update_model(message_data)
             await asyncio.sleep(0.01)
         except asyncio.TimeoutError:
           pass
