@@ -23,18 +23,14 @@ log.reset()
 # == Main Thread Data Processing ===============================================
 # ==============================================================================
 
-RATINGS_FILE     = '/tmp/placeScores.csv'
+RATINGS_FILE     = '/tmp/eventScores.csv'
 
 ITEM_COLUMN      = 'item_id'
 RATING_COLUMN    = 'rating'
-CITY_COLUMN      = 'city_id'
-HOOD_COLUMN      = 'hood_id'
 USER_COLUMN      = 'user_id'
 TIMESTAMP_COLUMN = 'timestamp'
-HOUR_COLUMN      = 'hour'
-DAY_COLUMN       = 'day'
 
-RATING_COLUMNS = [USER_COLUMN, ITEM_COLUMN, RATING_COLUMN, CITY_COLUMN, HOOD_COLUMN, TIMESTAMP_COLUMN, HOUR_COLUMN, DAY_COLUMN]
+RATING_COLUMNS = [USER_COLUMN, ITEM_COLUMN, RATING_COLUMN, TIMESTAMP_COLUMN]
 
 MAX_RATING = 2
 
@@ -42,28 +38,15 @@ MAX_RATING = 2
 # Keys for data shards
 TRAIN_USER_KEY   = "train_{}".format(USER_COLUMN)
 TRAIN_ITEM_KEY   = "train_{}".format(ITEM_COLUMN)
-TRAIN_CITY_KEY   = "train_{}".format(CITY_COLUMN)
 TRAIN_LABEL_KEY  = "train_labels"
 MASK_START_INDEX = "mask_start_index"
 VALID_POINT_MASK = "valid_point_mask"
 EVAL_USER_KEY    = "eval_{}".format(USER_COLUMN)
 EVAL_ITEM_KEY    = "eval_{}".format(ITEM_COLUMN)
-EVAL_CITY_KEY    = "eval_{}".format(CITY_COLUMN)
 TEST_SET_RATIO   = 2 # train with all data
 
-PARAMS_MAP       = 'params_map'
-USER_MAP         = 'user_map'
-ITEM_MAP         = 'item_map'
-CITY_MAP         = 'city_map'
-ITEM_CITY_MAP    = 'item_city_map'
-CITY_ITEM_MAP    = 'city_item_map'
-INVERSE_ITEM_MAP = 'inv_item_map'
 
-USER_DTYPE = np.int32
-ITEM_DTYPE = np.int32
-CITY_DTYPE = np.int32
-
-MODELS_PATH              = 'concierge/models'
+MODELS_PATH              = 'concierge/event_models'
 AWS_REGION               = 'us-east-1'
 AWS_BUCKET               = 'welcome.local'
 AWS_BUCKET_INTERNAL      = None

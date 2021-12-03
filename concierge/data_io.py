@@ -47,7 +47,7 @@ def read_dataset(delimiter, input_file):
   # scores_df = pd.read_csv(input_file, sep=',', header=0)
   use_headers = None
 
-  headers = [USER_COLUMN, ITEM_COLUMN, RATING_COLUMN, CITY_COLUMN, HOOD_COLUMN, TIMESTAMP_COLUMN, HOUR_COLUMN, DAY_COLUMN]
+  headers = [USER_COLUMN, ITEM_COLUMN, RATING_COLUMN, TIMESTAMP_COLUMN]
   header_row = 0 if use_headers else None  
   # todo filter any nans or rows with missing properties from the dataset
   df = pd.read_csv(input_file,
@@ -58,11 +58,7 @@ def read_dataset(delimiter, input_file):
                                USER_COLUMN: str,
                                ITEM_COLUMN: str,
                                RATING_COLUMN: np.float32,
-                               CITY_COLUMN: str,
-                               HOOD_COLUMN: str,
-                               TIMESTAMP_COLUMN: int,
-                               HOUR_COLUMN: str,
-                               DAY_COLUMN: str
+                               TIMESTAMP_COLUMN: int
                            },
                            encoding="utf-8")
   # print('read_dataset missing values',df.isnull().sum())
@@ -74,7 +70,7 @@ def read_dataset(delimiter, input_file):
 def load_dataset(delimiter, input_file): 
   """Load dataset, and create train and set sparse matrices.
 
-  Assumes 'user_id', 'item_id', 'score', and 'city_id' columns.
+  Assumes 'user_id', 'item_id', 'rating', and 'city_id' columns.
 
   Args:
     delimiter: file delimiter
