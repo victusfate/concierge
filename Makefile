@@ -1,6 +1,6 @@
 APP=concierge
 LOCAL_APP=welcome-${APP}
-# CONCIERGE_ECR_URI=$(shell AWS_PROFILE=${AWS_PROFILE} AWS_REGION=${AWS_REGION} aws ecr describe-repositories --repository-names ml/${APP} | jq -r ".repositories[0].repositoryUri"):${VERSION_TAG}
+CONCIERGE_ECR_URI=$(shell AWS_PROFILE=${AWS_PROFILE} AWS_REGION=${AWS_REGION} aws ecr describe-repositories --repository-names ml/${APP} | jq -r ".repositories[0].repositoryUri"):${VERSION_TAG}
 AWS_PROFILE=welco
 AWS_REGION=us-east-1
 ECR_URI=257779808675.dkr.ecr.us-east-1.amazonaws.com/
@@ -83,7 +83,7 @@ docker_concierge_requirements:
 .PHONY : docker_build
 docker_build:
 	./docker_build.sh
-	# docker tag concierge $(CONCIERGE_ECR_URI)
+	docker tag concierge $(CONCIERGE_ECR_URI)
 
 .PHONY : up # assumes we have stored our built container
 up: docker_build
