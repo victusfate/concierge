@@ -21,12 +21,8 @@ RATINGS_FILE = constants.RATINGS_FILE
 
 ITEM_COLUMN = constants.ITEM_COLUMN
 RATING_COLUMN = constants.RATING_COLUMN
-CITY_COLUMN = constants.CITY_COLUMN
-HOOD_COLUMN = constants.HOOD_COLUMN
 USER_COLUMN = constants.USER_COLUMN
 TIMESTAMP_COLUMN = constants.TIMESTAMP_COLUMN
-HOUR_COLUMN = constants.HOUR_COLUMN
-DAY_COLUMN = constants.DAY_COLUMN
 
 RATING_COLUMNS = constants.RATING_COLUMNS
 
@@ -57,7 +53,7 @@ def read_dataset(delimiter, input_file):
                            dtype={
                                USER_COLUMN: str,
                                ITEM_COLUMN: str,
-                               RATING_COLUMN: np.float32,
+                               RATING_COLUMN: float,
                                TIMESTAMP_COLUMN: int
                            },
                            encoding="utf-8")

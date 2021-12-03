@@ -24,3 +24,4 @@ df = pd.read_csv(sys.argv[1],
 
 event_df = df[['user_id', 'item_id', 'rating', 'timestamp']]
 event_df.to_csv(sys.argv[2],sep=',',header=False,index=False)
+print('max timestamp',event_df['timestamp'].max())
