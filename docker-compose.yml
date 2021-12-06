@@ -12,19 +12,19 @@ services:
         - ./consul/data:/consul/data
     restart: always
     command: agent -server -config-file=/consul/config/config.json -bind 0.0.0.0 -client 0.0.0.0
-  ps2consul:
-    image: ${ECR_URI}infra/ps2consul:master-288b666
-    networks:
-        - rec
-    volumes:
-        - $HOME/.aws:/home/node/.aws:ro
-    environment:
-        ENVIRONMENT: local
-        AWS_REGION:  us-east-1
-        AWS_PROFILE: welco
-        CONSUL_HOST: consul
-    depends_on:
-        - consul    
+  # ps2consul:
+  #   image: ${ECR_URI}infra/ps2consul:master-288b666
+  #   networks:
+  #       - rec
+  #   volumes:
+  #       - $HOME/.aws:/home/node/.aws:ro
+  #   environment:
+  #       ENVIRONMENT: local
+  #       AWS_REGION:  us-east-1
+  #       AWS_PROFILE: welco
+  #       CONSUL_HOST: consul
+  #   depends_on:
+  #       - consul    
   concierge:
     # build:
     #   context: .
