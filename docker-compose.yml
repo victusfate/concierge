@@ -1,0 +1,50 @@
+services:
+  consul:
+    image: consul
+    networks:
+        - rec
+    ports:
+        - '8500:8500'
+        - '8600:8600/tcp'
+        - '8600:8600/udp'
+    volumes:
+        - ./consul/config:/consul/config
+        - ./consul/data:/consul/data
+    restart: always
+    command: agent -server -config-file=/consul/config/config.json -bind 0.0.0.0 -client 0.0.0.0
+  # ps2consul:
+  #   image: ${ECR_URI}infra/ps2consul:master-288b666
+  #   networks:
+  #       - rec
+  #   volumes:
+  #       - $HOME/.aws:/home/node/.aws:ro
+  #   environment:
+  #       ENVIRONMENT: local
+  #       AWS_REGION:  us-east-1
+  #       AWS_PROFILE: welco
+  #       CONSUL_HOST: consul
+  #   depends_on:
+  #       - consul    
+  concierge:
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile    
+    image: concierge
+    networks:
+        - rec
+    container_name: concierge
+    entrypoint: sh ./entrypoint.sh
+    mem_limit: 10g
+    ports:
+      - 5000:5000
+    working_dir: /var/www/concierge
+    volumes:
+      - ./:/var/www/concierge
+    environment:
+      CONSUL_HOST: consul
+    depends_on:
+      - consul
+    # restart: always          
+networks:
+  rec:
+    driver: bridge
