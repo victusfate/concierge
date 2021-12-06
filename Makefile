@@ -1,10 +1,10 @@
 APP=concierge
 LOCAL_APP=welcome-${APP}
+VERSION_TAG=$(shell git branch --show-current)-$(shell git rev-parse --short HEAD)
 CONCIERGE_ECR_URI=$(shell AWS_PROFILE=${AWS_PROFILE} AWS_REGION=${AWS_REGION} aws ecr describe-repositories --repository-names ml/${APP} | jq -r ".repositories[0].repositoryUri"):${VERSION_TAG}
 AWS_PROFILE=welco
 AWS_REGION=us-east-1
 ECR_URI=257779808675.dkr.ecr.us-east-1.amazonaws.com/
-
 
 .PHONY : githook
 githook: clean_dependencies dependencies application
