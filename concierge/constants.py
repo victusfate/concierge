@@ -106,8 +106,11 @@ def setConfig(env=None):
 
   if 'cache' in  CONFIG and 'redis' in CONFIG['cache'] and 'host' in CONFIG['cache']['redis']:
     REDIS_HOST = CONFIG['cache']['redis']['host']
-    if os.getenv()['CACHE_REDIS_HOST']:
-      REDIS_HOST = os.getenv()['CACHE_REDIS_HOST']
+    
+  if os.getenv('CACHE_REDIS_HOST'):
+    REDIS_HOST = os.getenv('CACHE_REDIS_HOST')
+
+  print('REDIS_HOST',REDIS_HOST)
 
   if platform == 'darwin':
     AWS_PROFILE = 'welco'
@@ -115,7 +118,7 @@ def setConfig(env=None):
   if sys.platform == 'darwin':
     MODELS_PATH = 'recommender/mac_models'
 
-# setConfig()
+setConfig()
 
 # shared s3 interface
 print('AWS_BUCKET',AWS_BUCKET,'AWS_REGION',AWS_REGION)

@@ -13,8 +13,6 @@ import asyncio
 import async_timeout
 import aioredis
 
-cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)   
-
 METRIC_KEY = 'river_metric'
 MODEL_KEY  = 'river_model'
 
@@ -45,10 +43,12 @@ class CollaborativeFilter:
     return max_ts,dataset
 
   def cache_get_metric_and_model(self):
+    cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)
     self.metric = pickle.loads(cache.get(METRIC_KEY))
     self.model  = pickle.loads(cache.get(MODEL_KEY))
 
   def cache_set_metric_and_model(self):
+    cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)
     cache.set(METRIC_KEY,pickle.dumps(self.metric))
     cache.set(MODEL_KEY,pickle.dumps(self.model))
 
@@ -103,12 +103,13 @@ class CollaborativeFilter:
       y_pred = self.model.predict_one(x)      # make a prediction
       self.metric = self.metric.update(y, y_pred)  # update the metric
       self.model = self.model.learn_one(x, y)      # make the model learn   
-    if self.model.timestamp is None or max_ts > self.model.timestamp:
+    if self.model.timestamp is None or (max_ts is not None and max_ts > self.model.timestamp):
       self.model.timestamp = max_ts
       print('updated model timestamp',self.model.timestamp)
 
 
   def delta_update(self):
+    cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)
     raw_updates = cache.zrangebyscore(FEED_EVENTS,self.model.timestamp,'inf')
     message_data = []
     for update in raw_updates:
@@ -133,7 +134,7 @@ class CollaborativeFilter:
             await asyncio.sleep(0.01)
         except asyncio.TimeoutError:
           pass
-    redis = await aioredis.from_url('redis://' + REDIS_HOST,port=6379, db=0)
+    redis = await aioredis.from_url('redis://' + constants.REDIS_HOST,port=6379, db=0)
     pubsub = redis.pubsub()
     await pubsub.subscribe(self.channel)
     await asyncio.create_task(reader(pubsub))
