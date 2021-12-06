@@ -104,7 +104,7 @@ docker_login:
 .PHONY : docker_publish
 # pushes the containers with the ECR URI tag to ECR
 docker_publish: docker_build docker_login
-	docker tag conciergee $(CONCIERGE_ECR_URI)
+	docker tag concierge $(CONCIERGE_ECR_URI)
 	docker push $(CONCIERGE_ECR_URI)
 
 .PHONY : deploy_local	
