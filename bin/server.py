@@ -49,7 +49,7 @@ async def health(request):
   return sanic_json(logs)
 
 @app.route('/user/<user_id>/items/<items_str>')
-async def user_places(request,user_id=None,items_str=''):
+async def user_items(request,user_id=None,items_str=''):
   global cf
   item_ids = items_str.split(',')
   return sanic_json(cf.predict(user_id,item_ids))
