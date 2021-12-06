@@ -2,7 +2,7 @@ services:
   consul:
     image: consul
     networks:
-        - rec
+        - conc
     ports:
         - '8500:8500'
         - '8600:8600/tcp'
@@ -15,7 +15,7 @@ services:
   ps2consul:
     image: ${ECR_URI}infra/ps2consul:master-288b666
     networks:
-        - rec
+        - conc
     volumes:
         - $HOME/.aws:/home/node/.aws:ro
     environment:
@@ -24,14 +24,23 @@ services:
         AWS_PROFILE: welco
         CONSUL_HOST: consul
     depends_on:
-        - consul    
+        - consul
+  redis:
+      image: redis:5.0.7
+      user: ${MY_USER_ID}:${MY_GROUP_ID}
+      networks:
+          - conc
+      ports:
+          - 6379:6379
+      volumes:
+          - ./redis/data:/data        
   concierge:
     # build:
     #   context: .
     #   dockerfile: Dockerfile    
     image: concierge
     networks:
-        - rec
+        - conc
     container_name: concierge
     entrypoint: sh ./entrypoint.sh
     mem_limit: 10g
@@ -46,5 +55,5 @@ services:
       - consul
     # restart: always          
 networks:
-  rec:
+  conc:
     driver: bridge
