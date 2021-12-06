@@ -106,6 +106,8 @@ def setConfig(env=None):
 
   if 'cache' in  CONFIG and 'redis' in CONFIG['cache'] and 'host' in CONFIG['cache']['redis']:
     REDIS_HOST = CONFIG['cache']['redis']['host']
+    if os.getenv()['CACHE_REDIS_HOST']:
+      REDIS_HOST = os.getenv()['CACHE_REDIS_HOST']
 
   if platform == 'darwin':
     AWS_PROFILE = 'welco'

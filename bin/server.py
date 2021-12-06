@@ -4,6 +4,7 @@ import json
 import time
 import requests
 # import json
+from concierge import constants
 from concierge.collaborative_filter import CollaborativeFilter
 import redis
 import asyncio
@@ -19,7 +20,7 @@ CHANNEL = 'cf_updates'
 
 app = Sanic("Concierge")
 
-cache = redis.Redis(host='localhost', port=6379, db=0)   
+cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)   
 
 cf = CollaborativeFilter(None)
 tCacheGetStart = time.time()

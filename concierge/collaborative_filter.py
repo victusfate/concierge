@@ -13,8 +13,7 @@ import asyncio
 import async_timeout
 import aioredis
 
-REDIS_HOST = 'localhost'
-cache = redis.Redis(host=REDIS_HOST, port=6379, db=0)   
+cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)   
 
 METRIC_KEY = 'river_metric'
 MODEL_KEY  = 'river_model'
