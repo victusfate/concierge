@@ -79,11 +79,14 @@ class CollaborativeFilter:
     constants.s3.put(metric_path,os.path.join(bucket_path,'latest',METRIC_FILE))
 
   def import_from_s3(self,file_path = DEFAULT_PATH,bucket_path = constants.MODELS_PATH):
-    model_path = os.path.join(file_path,MODEL_FILE)
-    metric_path = os.path.join(file_path,METRIC_FILE)
+    s3_model_path  = os.path.join(bucket_path,'latest',MODEL_FILE)
+    s3_metric_path = os.path.join(bucket_path,'latest',METRIC_FILE)
+    model_path     = os.path.join(file_path,MODEL_FILE)
+    metric_path    = os.path.join(file_path,METRIC_FILE)
     # concierge/models/latest/{model/metric}.sav path
-    constants.s3.get(os.path.join(bucket_path,'latest',MODEL_FILE),model_path)
-    constants.s3.get(os.path.join(bucket_path,'latest',METRIC_FILE),metric_path)
+    print('s3 paths',s3_model_path,s3_metric_path)
+    constants.s3.get(s3_model_path,model_path)
+    constants.s3.get(s3_metric_path,metric_path)
     self.load_from_file(file_path)
 
   def update_model(self,message_data):
