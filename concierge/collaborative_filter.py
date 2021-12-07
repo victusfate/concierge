@@ -1,5 +1,6 @@
 import pandas as pd
 import time
+from datetime import datetime
 import json
 import os
 import pickle
@@ -67,12 +68,13 @@ class CollaborativeFilter:
 
   def export_to_s3(self,file_path = DEFAULT_PATH,bucket_path = constants.MODELS_PATH):
     timestamp = self.timestamp
+    date_str = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d')
     self.save_to_file(file_path)
     model_path = os.path.join(file_path,MODEL_FILE)
     metric_path = os.path.join(file_path,METRIC_FILE)
     # concierge/models/y-m-d/{timestamp}/{model/metric}.sav path
-    constants.s3.put(model_path,os.path.join(bucket_path,str(timestamp),MODEL_FILE))
-    constants.s3.put(metric_path,os.path.join(bucket_path,str(timestamp),METRIC_FILE))
+    constants.s3.put(model_path,os.path.join(bucket_path,date_str,str(timestamp),MODEL_FILE))
+    constants.s3.put(metric_path,os.path.join(bucket_path,date_str,str(timestamp),METRIC_FILE))
     # concierge/models/latest/{model/metric}.sav path
     constants.s3.put(model_path,os.path.join(bucket_path,'latest',MODEL_FILE))
     constants.s3.put(metric_path,os.path.join(bucket_path,'latest',METRIC_FILE))

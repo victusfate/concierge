@@ -104,6 +104,10 @@ def setConfig(env=None):
   if 'aws' in CONFIG and 's3' in CONFIG['aws'] and 'buckets' in CONFIG['aws']['s3'] and 'internal' in CONFIG['aws']['s3']['buckets']:
     AWS_BUCKET_INTERNAL = CONFIG['aws']['s3']['buckets']['internal']
 
+  if 'aws' in CONFIG and 'sqs' in CONFIG['aws'] and 'queues' in CONFIG['aws']['sqs'] and 'concierge_training' in CONFIG['aws']['sqs']['queues']:
+    TRAINING_QUEUE_ROOT_NAME = CONFIG['aws']['sqs']['queues']['concierge_training']
+
+
   def fabio_ip():
     if os.getenv('NOMAD_HOST_IP_concierge'):
       return os.getenv('NOMAD_HOST_IP_concierge')
@@ -125,6 +129,10 @@ def setConfig(env=None):
     MODELS_PATH = 'recommender/mac_models'
 
 setConfig()
+
+# shared message queues
+concierge_queue = message_queue.MessageQueue(name=TRAINING_QUEUE_ROOT_NAME,env=ENVIRONMENT,profile_name=AWS_PROFILE,region_name=AWS_REGION)
+
 
 # shared s3 interface
 print('AWS_BUCKET',AWS_BUCKET,'AWS_REGION',AWS_REGION)
