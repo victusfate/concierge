@@ -10,6 +10,7 @@ import redis
 import asyncio
 import os
 import psutil
+import threading
 
 # import async_timeout
 # import aioredis
@@ -62,6 +63,15 @@ async def sub():
 @app.after_server_start
 async def after_server_start(app, loop):
     app.add_task(sub())
+
+def training_queue_worker():
+  dir_path = os.path.dirname(os.path.realpath(__file__))
+  os.system('/usr/bin/python3 ' + os.path.join(dir_path,'concierge_queue_listener.py'))
+  
+# start queue in seprate thread
+queue_thread = threading.Thread(target=training_queue_worker,daemon=True)
+queue_thread.start()
+
 
 if __name__ == '__main__':
     app.run(port=PORT)
