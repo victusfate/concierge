@@ -1,0 +1,27 @@
+name: Deploy concierge
+
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '**'
+    paths-ignore:
+      - README.md
+
+jobs:
+  docker:
+    name: Docker Build & Deploy (ECR)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Docker Build & Push Action
+        uses: mr-smithers-excellent/docker-build-push@v5
+        with:
+          image: ml/concierge
+          registry: ${{ secrets.AWS_ECR_REGISTRY }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
