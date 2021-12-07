@@ -104,11 +104,17 @@ def setConfig(env=None):
   if 'aws' in CONFIG and 's3' in CONFIG['aws'] and 'buckets' in CONFIG['aws']['s3'] and 'internal' in CONFIG['aws']['s3']['buckets']:
     AWS_BUCKET_INTERNAL = CONFIG['aws']['s3']['buckets']['internal']
 
-  if 'cache' in  CONFIG and 'redis' in CONFIG['cache'] and 'host' in CONFIG['cache']['redis']:
-    REDIS_HOST = CONFIG['cache']['redis']['host']
-    
+  def fabio_ip():
+    if os.getenv('NOMAD_HOST_IP_concierge'):
+      return os.getenv('NOMAD_HOST_IP_concierge')
+    if os.getenv('DOMAIN_FABIO'):
+      return os.getenv('DOMAIN_FABIO')
+    return 'localhost'
+
   if os.getenv('CACHE_REDIS_HOST'):
     REDIS_HOST = os.getenv('CACHE_REDIS_HOST')
+  else:
+    REDIS_HOST = fabio_ip()
 
   print('REDIS_HOST',REDIS_HOST)
 
