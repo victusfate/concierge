@@ -69,8 +69,8 @@ def training_queue_worker():
   os.system('/usr/bin/python3 ' + os.path.join(dir_path,'concierge_queue_listener.py'))
   
 # start queue in seprate thread
-# queue_thread = threading.Thread(target=training_queue_worker,daemon=True)
-# queue_thread.start()
+queue_thread = threading.Thread(target=training_queue_worker,daemon=True)
+queue_thread.start()
 
 
 if __name__ == '__main__':
