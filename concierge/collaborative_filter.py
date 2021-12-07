@@ -66,9 +66,13 @@ class CollaborativeFilter:
     self.model  = pickle.load(open(model_path,'rb'))
     self.metric = pickle.load(open(metric_path,'rb'))
 
-  def export_to_s3(self,file_path = DEFAULT_PATH,bucket_path = constants.MODELS_PATH):
-    timestamp = self.timestamp
-    date_str = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d')
+  def export_to_s3(self,file_path = DEFAULT_PATH,bucket_path = constants.MODELS_PATH,timestamp = None, date_str = None):
+    # if no timestamp is passed in, use the model's timestamp    
+    if timestamp is None:
+      timestamp = self.timestamp
+    # if no date_str is passed in, use the model's timestamp and convert to Y-m-d    
+    if date_str is None:
+      date_str = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d')
     self.save_to_file(file_path)
     model_path = os.path.join(file_path,MODEL_FILE)
     metric_path = os.path.join(file_path,METRIC_FILE)

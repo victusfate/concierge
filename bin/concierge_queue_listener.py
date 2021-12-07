@@ -75,7 +75,7 @@ def train(job_data):
     log.info('predictions',scores)
     
     new_model_metric_path = '/tmp/' + str(timestamp)
-    cf.export_to_s3(file_path=new_model_metric_path)
+    cf.export_to_s3(file_path=new_model_metric_path,date_str=date,timestamp=timestamp)
     # clear local model files
     os.system('rm -rf ' + new_model_metric_path)
     
