@@ -57,6 +57,8 @@ class CollaborativeFilter:
   def save_to_file(self,file_path = DEFAULT_PATH):
     model_path = os.path.join(file_path,MODEL_FILE)
     metric_path = os.path.join(file_path,METRIC_FILE)
+    parent_dir = os.path.dirname(file_path)
+    os.makedirs(parent_dir, exist_ok=True)
     pickle.dump(self.model,open(model_path,'wb'))
     pickle.dump(self.metric,open(metric_path,'wb'))
 

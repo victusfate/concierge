@@ -38,8 +38,11 @@ print('tLearn',tLearnEnd-tLearnStart)
 # tCacheGetEnd = time.time()
 # print('tCacheGet',tCacheGetEnd-tCacheGetStart)
 
-cf.export_to_s3()
+timestamp = int(time.time())
+new_model_metric_path = '/tmp/' + str(timestamp)
+cf.export_to_s3(new_model_metric_path)
 # clear local model files
+os.system('rm -rf ' + new_model_metric_path)
 os.system('rm /tmp/model.sav')
 os.system('rm /tmp/metric.sav')
 
