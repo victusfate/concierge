@@ -84,7 +84,7 @@ def setConfig(env=None):
     CONFIG = data_tools.consul_to_nested_dict(consul_list)
     # print('CONFIG',CONFIG)
   except Exception as e:
-    print('recommend.constants consul exception',e)
+    print('concierge.constants consul exception',e)
 
   if not CONFIG and env:
     dirname = os.path.dirname(__file__)
@@ -126,7 +126,7 @@ def setConfig(env=None):
     AWS_PROFILE = 'welco'
 
   if sys.platform == 'darwin':
-    MODELS_PATH = 'recommender/mac_models'
+    MODELS_PATH = 'concierge/mac_models'
 
 setConfig()
 

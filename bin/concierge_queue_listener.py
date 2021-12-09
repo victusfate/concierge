@@ -84,26 +84,30 @@ def train(job_data):
 
 def concierge_queue_listener(concierge_queue):
   while True:
-    # sample payload
-    # {
-    #   'type': 'train_feed_recommendations',
-    #   's3_path': 's3://dev.welco.me/concierge/event_scores/2020-01-28/1580237292_eventScores.csv',
-    #   'date': '2020-02-27',
-    #   'timestamp': 1582839506,
-    #   '--t': 'thread_hash',
-    #   '--p': 'parent_hash'
-    # }
+    try:
+      # sample payload
+      # {
+      #   'type': 'train_feed_recommendations',
+      #   's3_path': 's3://dev.welco.me/concierge/event_scores/2020-01-28/1580237292_eventScores.csv',
+      #   'date': '2020-02-27',
+      #   'timestamp': 1582839506,
+      #   '--t': 'thread_hash',
+      #   '--p': 'parent_hash'
+      # }
 
-    job_data = concierge_queue.pop()
-    log.info('received payload data',job_data)
-    
-    # ensure queue is clear (if we backup training, clear queue)
-    concierge_queue.purge()
-    
-    has_type = 'type' in job_data
-    is_training = has_type and job_data['type'] == 'train_feed_recommendations'
-    has_data = 's3_path' in job_data
-    if is_training and has_data:
-      train(job_data)
+      log.info('before concierge queue pop',int(time.time()))
+      job_data = concierge_queue.pop()
+      log.info('received payload data',job_data)
+      
+      # ensure queue is clear (if we backup training, clear queue)
+      concierge_queue.purge()
+      
+      has_type = 'type' in job_data
+      is_training = has_type and job_data['type'] == 'train_feed_recommendations'
+      has_data = 's3_path' in job_data
+      if is_training and has_data:
+        train(job_data)
+    except Exception as e:
+      log.err('concierge_queue_listener unhandled Exception',e)
 
 concierge_queue_listener(concierge_queue)
