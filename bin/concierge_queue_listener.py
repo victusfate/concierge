@@ -88,7 +88,7 @@ def concierge_queue_listener(concierge_queue):
       # sample payload
       # {
       #   'type': 'train_feed_recommendations',
-      #   's3_path': 's3://dev.welco.me/concierge/event_scores/2020-01-28/1580237292_eventScores.csv',
+      #   's3_path': 's3://d2.welco.me/concierge/event_scores/2020-01-28/1580237292_eventScores.csv',
       #   'date': '2020-02-27',
       #   'timestamp': 1582839506,
       #   '--t': 'thread_hash',

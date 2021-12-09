@@ -24,14 +24,14 @@ app = Sanic("Concierge")
 cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)   
 
 cf = CollaborativeFilter(None)
-tCacheGetStart = time.time()
+tModelStart = time.time()
 cf.import_from_s3()
 cf.delta_update()
-tCacheGetEnd = time.time()
+tModelEnd = time.time()
 print('metric',cf.metric)
 print('model',cf.model)
 print('timestamp',cf.model.timestamp)
-print('tCacheGet',tCacheGetEnd-tCacheGetStart)
+print('tModelLoad',tModelEnd-tModelStart)
 
 @app.route('/')
 async def index(request):
@@ -75,4 +75,4 @@ queue_thread.start()
 
 
 if __name__ == '__main__':
-    app.run(port=PORT)
+    app.run(host='0.0.0.0',port=PORT)
