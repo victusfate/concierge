@@ -63,7 +63,7 @@ async def sub():
 
 @app.after_server_start
 async def after_server_start(app, loop):
-    app.add_task(sub())
+  app.add_task(sub())
 
 def training_queue_worker():
   dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -75,4 +75,4 @@ queue_thread.start()
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0',port=PORT)
+  app.run(host='0.0.0.0',port=PORT)
