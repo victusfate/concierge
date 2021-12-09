@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-sleep 5
+sleep 10 # concierge is slow as hell to populate
 consul_addr=$(echo http://$CONSUL_HOST:8500)
 aws_key=$(consul kv get -http-addr=$consul_addr 'aws/auth/concierge/key')
 aws_secret=$(consul kv get -http-addr=$consul_addr 'aws/auth/concierge/secret')
