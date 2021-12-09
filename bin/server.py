@@ -48,7 +48,6 @@ async def health(request):
     'process': pid,
     'memory': memory_bytes 
   }
-  print('/health',logs)
   return sanic_json(logs)
 
 @app.route('/user/<user_id>/items/<items_str>')
