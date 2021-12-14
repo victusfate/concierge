@@ -11,7 +11,6 @@ import json
 import hashlib
 
 PORT = 5000
-CHANNEL = 'cf_updates'
 cache = redis.Redis(host='localhost', port=6379, db=0)   
 
 # how to generate a diff of two files by row
