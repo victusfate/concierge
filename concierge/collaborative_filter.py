@@ -21,7 +21,7 @@ DEFAULT_PATH = '/tmp'
 MODEL_FILE  = 'model.sav'
 METRIC_FILE = 'metric.sav'
 
-FEED_EVENTS = 'feed_events'
+FEED_UPDATES = 'feed_updates'
 
 
 class CollaborativeFilter:
@@ -119,7 +119,7 @@ class CollaborativeFilter:
 
   def delta_update(self):
     cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)
-    raw_updates = cache.zrangebyscore(FEED_EVENTS,self.model.timestamp,'inf')
+    raw_updates = cache.zrangebyscore(FEED_UPDATES,self.model.timestamp,'inf')
     print('delta_update',raw_updates)
     message_data = []
     for update in raw_updates:

@@ -29,8 +29,8 @@ for user_item_score in df.itertuples():
   sevent = json.dumps(event)
   ordered_data[sevent] = ts
   # event_sha1 = hashlib.sha1(sevent.encode('utf-8')).hexdigest()
-  cache_key = 'feed_events'
+  cache_key = 'feed_updates'
   # cache.zadd(cache_key,{sevent:ts})  
 
-cache_key = 'feed_events'
+cache_key = 'feed_updates'
 cache.zadd(cache_key,ordered_data)
