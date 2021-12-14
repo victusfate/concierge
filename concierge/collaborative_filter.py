@@ -120,7 +120,7 @@ class CollaborativeFilter:
   def delta_update(self):
     cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)
     raw_updates = cache.zrangebyscore(FEED_UPDATES,self.model.timestamp,'inf')
-    print('delta_update',raw_updates)
+    print('delta_update count',len(raw_updates))
     message_data = []
     for update in raw_updates:
       update = update.decode('utf-8')
