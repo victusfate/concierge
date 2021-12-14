@@ -229,11 +229,11 @@ class CollaborativeFilter:
   def predict(self,user_id,item_ids):
     scores = {}
     for item_id in item_ids:
-      # todo - figure out how to check if item is known https://github.com/online-ml/river/discussions/795
-      # score = 0
-      # if item_id in self.model.weights:
-      #   score = self.model.predict_one({'user': user_id,'item': item_id})
-      score = self.model.predict_one({'user': user_id,'item': item_id})
+      # todo - test check if item is known https://github.com/online-ml/river/discussions/795
+      score = 0
+      if item_id in self.model.regressor.steps['FMRegressor'].weights:
+        score = self.model.predict_one({'user': user_id,'item': item_id})
+      # score = self.model.predict_one({'user': user_id,'item': item_id})
       scores[item_id] = score
     # sort desc by score
     scores = {k: v for k, v in sorted(scores.items(), key=lambda item: item[1],reverse=True)}  
