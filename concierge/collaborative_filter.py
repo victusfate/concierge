@@ -231,7 +231,8 @@ class CollaborativeFilter:
     for item_id in item_ids:
       # todo - test check if item is known https://github.com/online-ml/river/discussions/795
       score = 0
-      if item_id in self.model.regressor.steps['FMRegressor'].weights:
+      model_item_id = 'item_' + str(item_id)
+      if model_item_id in self.model.regressor.steps['FMRegressor'].weights:
         score = self.model.predict_one({'user': user_id,'item': item_id})
       # score = self.model.predict_one({'user': user_id,'item': item_id})
       scores[item_id] = score
