@@ -54,6 +54,7 @@ async def health(request):
 async def user_items(request,user_id=None,items_str=''):
   global cf
   item_ids = items_str.split(',')
+  item_ids = list(map(lambda x:str(x),item_ids))
   return sanic_json(cf.predict(user_id,item_ids))
 
 async def sub():
