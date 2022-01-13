@@ -13,6 +13,7 @@ import redis
 import asyncio
 import async_timeout
 import aioredis
+import random
 
 METRIC_KEY = 'river_metric'
 MODEL_KEY  = 'river_model'
@@ -240,4 +241,13 @@ class CollaborativeFilter:
     scores = {k: v for k, v in sorted(scores.items(), key=lambda item: item[1],reverse=True)}  
     return scores
 
-
+  def random_items(self,n=100):
+    weights = self.model.regressor.steps['FMRegressor'].weights
+    keys = []
+    for(k,v) in weights.items():
+      akey = k.split('_')
+      wtype = akey[0]
+      item = akey[1]
+      if wtype == 'item':
+        keys.append(item)
+    return random.sample(keys,n)

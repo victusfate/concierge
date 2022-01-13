@@ -12,6 +12,9 @@ import os
 import psutil
 import threading
 
+from rsyslog_cee import log
+from rsyslog_cee.logger import Logger,LoggerOptions
+
 # import async_timeout
 # import aioredis
 # import aiohttp
@@ -19,9 +22,22 @@ import threading
 PORT = 5000
 CHANNEL = 'cf_updates'
 
-app = Sanic("Concierge")
+tStart = time.time()
 
+app = Sanic("Concierge")
 cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)   
+
+def reset_logger():
+  oNewLogger = Logger(
+        LoggerOptions(
+            service='concierge.welco.me', # The App Name for Syslog
+            console= True,        # we log to console here
+            syslog=  False        # Output logs to syslog
+        )
+    )
+  log.set_logger(oNewLogger)
+reset_logger()
+log.info('deployment start',tStart)
 
 cf = CollaborativeFilter(None)
 tModelStart = time.time()
@@ -32,6 +48,8 @@ print('metric',cf.metric)
 print('model',cf.model)
 print('timestamp',cf.model.timestamp)
 print('tModelLoad',tModelEnd-tModelStart)
+print('random items(useful for testing)',','.join(cf.random_items(30)))
+
 
 @app.route('/')
 async def index(request):
@@ -53,8 +71,12 @@ async def health(request):
 @app.route('/user/<user_id>/items/<items_str>')
 async def user_items(request,user_id=None,items_str=''):
   global cf
+  reset_logger()
   item_ids = items_str.split(',')
-  return sanic_json(cf.predict(user_id,item_ids))
+  results = cf.predict(user_id,item_ids)
+  log.info('user_items',{'user_id': user_id, 'results': results})
+  log.oLogger.summary('server.user_items.Summary')
+  return sanic_json(results)
 
 async def sub():
   global cf
