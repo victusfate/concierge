@@ -118,16 +118,19 @@ class CollaborativeFilter:
       print('updated model timestamp',self.model.timestamp)
     # extra logging for W2-3228
     user_id = '128x9v1'
-    random_items = self.random_items(30)
-    scores = self.predict(user_id,random_items)
-    test_weights = {}
-    for item_id in random_items:
-      model_item_id = 'item_' + str(item_id)
-      if model_item_id in self.model.regressor.steps['FMRegressor'].weights:
-        test_weights[item_id] = self.model.regressor.steps['FMRegressor'].weights[model_item_id]
-      else:
-        test_weights[item_id] = 'NA'
-    print('random scores after update for user',user_id,'scores',scores,'test_weights',test_weights)
+    if self.model.random_items is not None:
+      random_items = self.model.random_items
+      scores = self.predict(user_id,random_items)
+      test_weights = {}
+      for item_id in random_items:
+        model_item_id = 'item_' + str(item_id)
+        if model_item_id in self.model.regressor.steps['FMRegressor'].weights:
+          test_weights[item_id] = self.model.regressor.steps['FMRegressor'].weights[model_item_id]
+        else:
+          test_weights[item_id] = 'NA'
+      print('random scores after update for user',user_id,'scores',scores,'test_weights',test_weights)
+    else:
+      print('random items not set for model')
     
 
 
@@ -174,6 +177,8 @@ class CollaborativeFilter:
       self.metric = self.metric.update(y, y_pred)  # update the metric
       self.model = self.model.learn_one(x, y)      # make the model learn
     self.model.timestamp = max_ts
+    self.model.random_items = self.random_items(30)
+
 
   # adding to the global running mean two bias terms characterizing the user and 
   # the item discrepancy from the general tendency. 
