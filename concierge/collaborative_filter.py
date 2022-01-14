@@ -4,6 +4,7 @@ from datetime import datetime
 import json
 import os
 import pickle
+from rsyslog_cee import log
 from concierge import data_io
 from concierge import constants
 from river import metrics,stats,compose,facto
@@ -117,8 +118,8 @@ class CollaborativeFilter:
       self.model.timestamp = max_ts
       print('updated model timestamp',self.model.timestamp)
     # extra logging for W2-3228
-    user_id = '128x9v1'
     if self.model.random_items is not None:
+      user_id = '128x9v1'
       random_items = self.model.random_items
       scores = self.predict(user_id,random_items)
       test_weights = {}
@@ -128,9 +129,9 @@ class CollaborativeFilter:
           test_weights[item_id] = self.model.regressor.steps['FMRegressor'].weights[model_item_id]
         else:
           test_weights[item_id] = 'NA'
-      print('random scores after update for user',user_id,'scores',scores,'test_weights',test_weights)
+      log.info('update_model','random scores after update for user',user_id,'scores',scores,'test_weights',test_weights)
     else:
-      print('random items not set for model')
+      log.info('update_model', 'random items is None')
     
 
 
@@ -177,7 +178,6 @@ class CollaborativeFilter:
       self.metric = self.metric.update(y, y_pred)  # update the metric
       self.model = self.model.learn_one(x, y)      # make the model learn
     self.model.timestamp = max_ts
-    self.model.random_items = self.random_items(30)
 
 
   # adding to the global running mean two bias terms characterizing the user and 

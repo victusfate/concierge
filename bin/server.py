@@ -48,7 +48,8 @@ print('metric',cf.metric)
 print('model',cf.model)
 print('timestamp',cf.model.timestamp)
 print('tModelLoad',tModelEnd-tModelStart)
-print('random items(useful for testing)',','.join(cf.random_items(30)))
+cf.model.random_items = cf.random_items(30)
+print('random items(useful for testing)',','.join(cf.model.random_items))
 
 
 @app.route('/')
