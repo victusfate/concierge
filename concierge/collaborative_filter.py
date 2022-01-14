@@ -116,6 +116,19 @@ class CollaborativeFilter:
     if self.model.timestamp is None or (max_ts is not None and max_ts > self.model.timestamp):
       self.model.timestamp = max_ts
       print('updated model timestamp',self.model.timestamp)
+    # extra logging for W2-3228
+    user_id = '128x9v1'
+    random_items = self.random_items(30)
+    scores = self.predict(user_id,random_items)
+    test_weights = {}
+    for item_id in random_items:
+      model_item_id = 'item_' + str(item_id)
+      if model_item_id in self.model.regressor.steps['FMRegressor'].weights:
+        test_weights[item_id] = self.model.regressor.steps['FMRegressor'].weights[model_item_id]
+      else:
+        test_weights[item_id] = 'NA'
+    print('random scores after update for user',user_id,'scores',scores,'test_weights',test_weights)
+    
 
 
   def delta_update(self):
