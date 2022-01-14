@@ -118,7 +118,7 @@ class CollaborativeFilter:
       self.model.timestamp = max_ts
       print('updated model timestamp',self.model.timestamp)
     # extra logging for W2-3228
-    if self.model.random_items is not None:
+    try:
       user_id = '128x9v1'
       random_items = self.model.random_items
       scores = self.predict(user_id,random_items)
@@ -130,8 +130,8 @@ class CollaborativeFilter:
         else:
           test_weights[item_id] = 'NA'
       log.info('update_model','random scores after update for user',user_id,'scores',scores,'test_weights',test_weights)
-    else:
-      log.info('update_model', 'random items is None')
+    except Exception as e:
+      log.info('update_model', e)
     
 
 
