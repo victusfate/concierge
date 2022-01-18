@@ -69,14 +69,24 @@ async def health(request):
   }
   return sanic_json(logs)
 
-@app.route('/user/<user_id>/items/<items_str>')
-async def user_items(request,user_id=None,items_str=''):
+@app.route('/user/<user_id>/items/<items_str>',methods=['GET'])
+async def user_items_get(request,user_id=None,items_str=''):
   global cf
   reset_logger()
   item_ids = items_str.split(',')
   results = cf.predict(user_id,item_ids)
-  log.info('user_items',{'user_id': user_id, 'results': results})
-  log.oLogger.summary('server.user_items.Summary')
+  log.info('user_items_get',{'user_id': user_id, 'results': results})
+  log.oLogger.summary('server.user_items_get.Summary')
+  return sanic_json(results)
+
+@app.route('/user/<user_id>/items',methods=['POST'])
+async def user_items_post(request,user_id=None):
+  global cf
+  reset_logger()
+  item_ids = request.json.get('items')
+  results = cf.predict(user_id,item_ids)
+  log.info('user_items_post',{'user_id': user_id, 'results': results})
+  log.oLogger.summary('server.user_items_post.Summary')
   return sanic_json(results)
 
 async def sub():
