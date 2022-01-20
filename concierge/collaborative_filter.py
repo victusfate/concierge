@@ -129,7 +129,7 @@ class CollaborativeFilter:
           test_weights[item_id] = self.model.regressor.steps['FMRegressor'].weights[model_item_id]
         else:
           test_weights[item_id] = 'NA'
-      log.info('update_model','random scores after update for user',user_id,'scores',scores,'test_weights',test_weights)
+      log.info('update_model','y_min,y_max',self.model.y_min,self.model.y_max,'random scores after update for user',user_id,'scores',scores,'test_weights',test_weights)
     except Exception as e:
       log.info('update_model', e)
     
