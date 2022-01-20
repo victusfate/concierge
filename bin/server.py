@@ -75,7 +75,7 @@ async def user_items_get(request,user_id=None,items_str=''):
   reset_logger()
   item_ids = items_str.split(',')
   results = cf.predict(user_id,item_ids)
-  log.info('user_items_get',{'user_id': user_id, 'results': results})
+  log.info('user_items_get',{'user_id': user_id, 'results': results, 'ymin': cf.model.y_min, 'ymax': cf.model.y_max})
   log.oLogger.summary('server.user_items_get.Summary')
   return sanic_json(results)
 
@@ -85,7 +85,7 @@ async def user_items_post(request,user_id=None):
   reset_logger()
   item_ids = request.json.get('items')
   results = cf.predict(user_id,item_ids)
-  log.info('user_items_post',{'user_id': user_id, 'results': results})
+  log.info('user_items_post',{'user_id': user_id, 'results': results, 'ymin': cf.model.y_min, 'ymax': cf.model.y_max})
   log.oLogger.summary('server.user_items_post.Summary')
   return sanic_json(results)
 
