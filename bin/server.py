@@ -6,6 +6,7 @@ import requests
 # import json
 from concierge import constants
 from concierge.collaborative_filter import CollaborativeFilter
+from concierge.training_queue import ConciergeQueue
 import redis
 import asyncio
 import os
@@ -98,8 +99,8 @@ async def after_server_start(app, loop):
   app.add_task(sub())
 
 def training_queue_worker():
-  dir_path = os.path.dirname(os.path.realpath(__file__))
-  os.system('/usr/bin/python3 ' + os.path.join(dir_path,'concierge_queue_listener.py'))
+  cq = ConciergeQueue()
+  cq.poll()
   
 # start queue in seprate thread
 queue_thread = threading.Thread(target=training_queue_worker,daemon=True)
