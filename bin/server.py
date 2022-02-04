@@ -92,11 +92,18 @@ async def user_items_post(request,user_id=None):
 
 async def sub():
   global cf
-  await cf.subscribe_to_updates(CHANNEL)
+  fut = await cf.subscribe_to_updates(CHANNEL)
+  if fut.exception():
+    log.err('sub.exception',fut.exception())
+  return fut
 
 @app.after_server_start
 async def after_server_start(app, loop):
-  app.add_task(sub())
+  fut = await sub()
+  if fut.exception():
+    log.err('after_server_start.exception',fut.exception())
+    exit(0)
+
 
 def training_queue_worker():
   cq = ConciergeQueue()

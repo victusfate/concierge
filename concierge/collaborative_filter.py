@@ -146,27 +146,35 @@ class CollaborativeFilter:
     self.update_model(message_data)
 
   async def subscribe_to_updates(self,channel):
-    self.channel = channel
-    async def reader(channel: aioredis.client.PubSub):
-      while True:
-        try:
-          async with async_timeout.timeout(1):
-            message = await channel.get_message(ignore_subscribe_messages=True)
-            if message is not None:
-              smessage = message["data"].decode()
-              print(f"(Reader) Message Received: {smessage}")
-              message_data = json.loads(smessage)
-              if not isinstance(message_data, list):
-                message_data = [message_data]
-              self.update_model(message_data)
-            await asyncio.sleep(0.01)
-        except asyncio.TimeoutError:
-          pass
-    redis = await aioredis.from_url('redis://' + constants.REDIS_HOST,port=6379, db=0)
-    pubsub = redis.pubsub()
-    await pubsub.subscribe(self.channel)
-    await asyncio.create_task(reader(pubsub))
-
+    try:
+      self.channel = channel
+      async def reader(channel: aioredis.client.PubSub):
+        while True:
+          try:
+            async with async_timeout.timeout(1):
+              message = await channel.get_message(ignore_subscribe_messages=True)
+              if message is not None:
+                smessage = message["data"].decode()
+                print(f"(Reader) Message Received: {smessage}")
+                message_data = json.loads(smessage)
+                if not isinstance(message_data, list):
+                  message_data = [message_data]
+                self.update_model(message_data)
+              await asyncio.sleep(0.01)
+          except asyncio.TimeoutError:
+            pass
+      # redis = await aioredis.from_url('redis://thisdoesnotexist',port=6379, db=0)
+      redis = await aioredis.from_url('redis://' + constants.REDIS_HOST,port=6379, db=0)
+      pubsub = redis.pubsub()
+      await pubsub.subscribe(self.channel)
+      fut = await asyncio.create_task(reader(pubsub))
+      return fut
+    except Exception as e:
+      log.err('subscribe_to_updates',e)
+      fut = asyncio.get_running_loop().create_future()
+      fut.set_exception(e)
+      return fut
+    
   # note also modifies the model + metrics
   def evaluate(self,dataset,max_ts):
       _ = progressive_val_score(dataset,self.model, self.metric, print_every=25_000, show_time=True, show_memory=True)
