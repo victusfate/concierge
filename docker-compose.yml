@@ -10,7 +10,7 @@ services:
     volumes:
         - ./consul/config:/consul/config
         - ./consul/data:/consul/data
-    restart: always
+    # restart: always
     command: agent -server -config-file=/consul/config/config.json -bind 0.0.0.0 -client 0.0.0.0
   # ps2consul:
   #   image: ${ECR_URI}infra/ps2consul:master-288b666
