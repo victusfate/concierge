@@ -20,6 +20,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Docker Build & Push Action
+        id: build
         uses: mr-smithers-excellent/docker-build-push@v5
         with:
           image: ml/concierge
