@@ -28,6 +28,20 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
+      - name: Get First Tag
+        id: tag
+        run: |
+          echo "::set-output name=TAGNAME::$(echo '${{ steps.build.outputs.TAGS }}' | cut -d ',' -f1)"
+      
+      - name: Write Param
+        id: param
+        run: |
+          aws ssm put-parameter --name "/d2/releases/${{ steps.build.outputs.IMAGENAME }}" --type "String" --value "${{ steps.build.outputs.IMAGEFULLNAME }}:${{ steps.tag.outputs.TAGNAME }}" --overwrite
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
       - name: Deploy to D2 Concierge
         id: deploy-d2-concierge
         uses: enobrev/nomad-deploy-action@v0.3.6-beta
