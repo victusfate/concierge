@@ -35,9 +35,6 @@ services:
       volumes:
           - ./redis/data:/data        
   concierge:
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile    
     image: concierge
     networks:
         - conc
@@ -46,6 +43,22 @@ services:
     mem_limit: 10g
     ports:
       - 5000:5000
+    working_dir: /var/www/concierge
+    volumes:
+      - ./:/var/www/concierge
+    environment:
+      CONSUL_HOST: consul
+      CACHE_REDIS_HOST: redis
+    depends_on:
+      - consul
+    # restart: always          
+  concierge-training:
+    image: concierge
+    networks:
+        - conc
+    container_name: concierge-training
+    entrypoint: sh ./entrypoint_training.sh
+    mem_limit: 10g
     working_dir: /var/www/concierge
     volumes:
       - ./:/var/www/concierge

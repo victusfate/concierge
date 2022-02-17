@@ -11,5 +11,5 @@ EXPOSE 5000
 ENV PYTHONPATH='/var/www/concierge/:$PYTHONPATH'
 
 CMD ["/var/www/concierge/entrypoint.sh"]
-ENTRYPOINT ["/var/www/concierge/entrypoint.sh"]
+# ENTRYPOINT ["/var/www/concierge/entrypoint.sh"]
 
