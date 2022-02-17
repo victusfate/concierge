@@ -6,7 +6,7 @@ import requests
 # import json
 from concierge import constants
 from concierge.collaborative_filter import CollaborativeFilter
-from concierge.training_queue import ConciergeQueue
+# from concierge.training_queue import ConciergeQueue
 import redis
 import asyncio
 import os
@@ -105,13 +105,14 @@ async def after_server_start(app, loop):
     exit(0)
 
 
-def training_queue_worker():
-  cq = ConciergeQueue()
-  cq.poll()
+# moved to a separate worker 
+# def training_queue_worker():
+#   cq = ConciergeQueue()
+#   cq.poll()
   
-# start queue in seprate thread
-queue_thread = threading.Thread(target=training_queue_worker,daemon=True)
-queue_thread.start()
+# # start queue in seprate thread
+# queue_thread = threading.Thread(target=training_queue_worker,daemon=True)
+# queue_thread.start()
 
 
 if __name__ == '__main__':
