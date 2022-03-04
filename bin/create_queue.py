@@ -39,5 +39,5 @@ def create_queue(name):
     profile_name=constants.AWS_PROFILE)
   mq.create_queue()
 
-create_queue(constants.EVENT_QUEUE_ROOT_NAME)
-create_queue(constants.MEDIA_QUEUE_ROOT_NAME)
+create_queue(constants.EVENT_QUEUE_ROOT_NAME.split('.')[0])
+create_queue(constants.MEDIA_QUEUE_ROOT_NAME.split('.')[0])
