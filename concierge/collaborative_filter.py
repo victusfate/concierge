@@ -71,7 +71,7 @@ class CollaborativeFilter:
     self.model  = pickle.load(open(model_path,'rb'))
     self.metric = pickle.load(open(metric_path,'rb'))
 
-  def export_to_s3(self,file_path = DEFAULT_PATH,bucket_path = constants.MODELS_PATH,timestamp = None, date_str = None):
+  def export_to_s3(self,file_path = DEFAULT_PATH,bucket_path = constants.EVENT_MODELS_PATH,timestamp = None, date_str = None):
     # if no timestamp is passed in, use the model's timestamp    
     if timestamp is None:
       timestamp = self.timestamp
@@ -88,7 +88,7 @@ class CollaborativeFilter:
     constants.s3.put(model_path,os.path.join(bucket_path,'latest',MODEL_FILE))
     constants.s3.put(metric_path,os.path.join(bucket_path,'latest',METRIC_FILE))
 
-  def import_from_s3(self,file_path = DEFAULT_PATH,bucket_path = constants.MODELS_PATH):
+  def import_from_s3(self,file_path = DEFAULT_PATH,bucket_path = constants.EVENT_MODELS_PATH):
     s3_model_path  = os.path.join(bucket_path,'latest',MODEL_FILE)
     s3_metric_path = os.path.join(bucket_path,'latest',METRIC_FILE)
     model_path     = os.path.join(file_path,MODEL_FILE)
