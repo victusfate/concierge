@@ -18,15 +18,15 @@ ENV = constants.ENVIRONMENT
 AWS_BUCKET = constants.AWS_BUCKET
 
 s3 = constants.s3
-service_name = 'concierge.training_queue'
+service_name = 'concierge.concierge_queue'
 
 alert_webhook = constants.CONFIG['slack']['webhooks']['es_reporter']
 
 class ConciergeQueue:
-  def __init__(self):
-    self.concierge_queue = constants.concierge_queue
+  def __init__(self,message_queue):
+    self.event_queue = message_queue
 
-  def fetch_data(self,data_path):
+  def fetch_data(self,data_path,ratings_file):
     cmd_clean_ratings = 'rm ' + constants.RATINGS_FILE
     os.system(cmd_clean_ratings)
     s3.get(data_path,constants.RATINGS_FILE,3)
@@ -106,12 +106,12 @@ class ConciergeQueue:
         #   '--p': 'parent_hash'
         # }
 
-        log.info('before_concierge_queue_pop',int(time.time()))
-        job_data = self.concierge_queue.pop()
+        log.info('before_event_queue_pop',int(time.time()))
+        job_data = self.event_queue.pop()
         log.info('received_payload_data',job_data)
         
         # ensure queue is clear (if we backup training, clear queue)
-        self.concierge_queue.purge()
+        self.event_queue.purge()
         
         has_type = 'type' in job_data
         is_training = has_type and job_data['type'] == 'train_feed_recommendations'

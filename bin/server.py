@@ -6,7 +6,7 @@ import requests
 # import json
 from concierge import constants
 from concierge.collaborative_filter import CollaborativeFilter
-# from concierge.concierge_queue import ConciergeQueue
+# from concierge.event_queue import ConciergeQueue
 import redis
 import asyncio
 import os

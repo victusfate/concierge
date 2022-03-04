@@ -23,7 +23,8 @@ log.reset()
 # == Main Thread Data Processing ===============================================
 # ==============================================================================
 
-RATINGS_FILE     = '/tmp/eventScores.csv'
+EVENT_RATINGS_FILE     = '/tmp/eventScores.csv'
+MEDIA_RATINGS_FILE     = '/tmp/mediaScores.csv'
 
 ITEM_COLUMN      = 'item_id'
 RATING_COLUMN    = 'rating'
@@ -46,17 +47,20 @@ EVAL_ITEM_KEY    = "eval_{}".format(ITEM_COLUMN)
 TEST_SET_RATIO   = 2 # train with all data
 
 
-MODELS_PATH              = 'concierge/event_models'
+EVENT_MODELS_PATH        = 'concierge/event_models'
+MEDIA_MODELS_PATH        = 'concierge/media_models'
 AWS_REGION               = 'us-east-1'
 AWS_BUCKET               = 'welcome.local'
 AWS_BUCKET_INTERNAL      = None
-TRAINING_QUEUE_ROOT_NAME = None
+EVENT_QUEUE_ROOT_NAME    = None
+MEDIA_QUEUE_ROOT_NAME    = None
 CONFIG                   = {}
 AWS_PROFILE              = None
 ENVIRONMENT              = 'd2'
 REDIS_HOST               = None
 
-training_queue           = None
+event_queue              = None
+media_queue              = None
 s3                       = None
 CONSUL_HOST              = None
 
@@ -64,9 +68,10 @@ MIN_PLACE_SCORE = -1.0
 MAX_PLACE_SCORE =  6.0
 
 def setConfig(env=None):
-  global CONSUL_HOST, CONFIG, ENVIRONMENT, TRAINING_QUEUE_ROOT_NAME
+  global CONSUL_HOST, CONFIG, ENVIRONMENT
+  global EVENT_QUEUE_ROOT_NAME, MEDIA_QUEUE_ROOT_NAME
   global AWS_REGION, AWS_BUCKET, AWS_BUCKET_INTERNAL, REDIS_HOST
-  global AWS_PROFILE, MODELS_PATH
+  global AWS_PROFILE, EVENT_MODELS_PATH, MEDIA_MODELS_PATH
   try:
     CONSUL_HOST = os.getenv('CONSUL_HOST')
     print('CONSUL_HOST',CONSUL_HOST)
@@ -104,8 +109,11 @@ def setConfig(env=None):
   if 'aws' in CONFIG and 's3' in CONFIG['aws'] and 'buckets' in CONFIG['aws']['s3'] and 'internal' in CONFIG['aws']['s3']['buckets']:
     AWS_BUCKET_INTERNAL = CONFIG['aws']['s3']['buckets']['internal']
 
-  if 'aws' in CONFIG and 'sqs' in CONFIG['aws'] and 'queues' in CONFIG['aws']['sqs'] and 'concierge_training' in CONFIG['aws']['sqs']['queues']:
-    TRAINING_QUEUE_ROOT_NAME = CONFIG['aws']['sqs']['queues']['concierge_training']
+  if 'aws' in CONFIG and 'sqs' in CONFIG['aws'] and 'queues' in CONFIG['aws']['sqs'] and 'event_training' in CONFIG['aws']['sqs']['queues']:
+    EVENT_QUEUE_ROOT_NAME = CONFIG['aws']['sqs']['queues']['event_training']
+
+  if 'aws' in CONFIG and 'sqs' in CONFIG['aws'] and 'queues' in CONFIG['aws']['sqs'] and 'media_training' in CONFIG['aws']['sqs']['queues']:
+    MEDIA_QUEUE_ROOT_NAME = CONFIG['aws']['sqs']['queues']['media_training']
 
 
   def fabio_ip():
@@ -126,12 +134,14 @@ def setConfig(env=None):
     AWS_PROFILE = 'welco'
 
   if sys.platform == 'darwin':
-    MODELS_PATH = 'concierge/mac_models'
+    EVENT_MODELS_PATH = 'concierge/mac_event_models'
+    MEDIA_MODELS_PATH = 'concierge/mac_media_models'
 
 setConfig()
 
 # shared message queues
-concierge_queue = message_queue.MessageQueue(name=TRAINING_QUEUE_ROOT_NAME,env=ENVIRONMENT,profile_name=AWS_PROFILE,region_name=AWS_REGION)
+event_queue = message_queue.MessageQueue(name=EVENT_QUEUE_ROOT_NAME,env=ENVIRONMENT,profile_name=AWS_PROFILE,region_name=AWS_REGION)
+media_queue = message_queue.MessageQueue(name=MEDIA_QUEUE_ROOT_NAME,env=ENVIRONMENT,profile_name=AWS_PROFILE,region_name=AWS_REGION)
 
 
 # shared s3 interface
@@ -143,7 +153,4 @@ print('s3',s3)
 
 MIN_NUM_RATINGS = 10
 
-# The number of negative examples attached with a positive example
-# when performing evaluation.
-NUM_EVAL_NEGATIVES = 999
 
