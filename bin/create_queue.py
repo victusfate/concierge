@@ -19,25 +19,25 @@ def create_queue(name):
     region_name=constants.AWS_REGION,
     profile_name=constants.AWS_PROFILE)
   print({'queue_name': mq.queue_name})
-  mq.create_queue()
+  mq.create_queue(is_fifo=True)
 
   mq = message_queue.MessageQueue(name=name,
     env='d2',
     region_name=constants.AWS_REGION,
     profile_name=constants.AWS_PROFILE)
-  mq.create_queue()
+  mq.create_queue(is_fifo=True)
 
   mq = message_queue.MessageQueue(name=name,
     env='beta',
     region_name=constants.AWS_REGION,
     profile_name=constants.AWS_PROFILE)
-  mq.create_queue()
+  mq.create_queue(is_fifo=True)
 
   mq = message_queue.MessageQueue(name=name,
     env='prod',
     region_name=constants.AWS_REGION,
     profile_name=constants.AWS_PROFILE)
-  mq.create_queue()
+  mq.create_queue(is_fifo=True)
 
-create_queue(constants.EVENT_QUEUE_ROOT_NAME.split('.')[0],True)
-create_queue(constants.MEDIA_QUEUE_ROOT_NAME.split('.')[0],True)
+create_queue(constants.EVENT_QUEUE_ROOT_NAME)
+create_queue(constants.MEDIA_QUEUE_ROOT_NAME)
