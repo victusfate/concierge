@@ -17,8 +17,6 @@ config = constants.CONFIG
 ENV = constants.ENVIRONMENT
 AWS_BUCKET = constants.AWS_BUCKET
 
-RATINGS_FILE = constants.RATINGS_FILE
-
 ITEM_COLUMN = constants.ITEM_COLUMN
 RATING_COLUMN = constants.RATING_COLUMN
 USER_COLUMN = constants.USER_COLUMN

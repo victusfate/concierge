@@ -23,13 +23,14 @@ service_name = 'concierge.concierge_queue'
 alert_webhook = constants.CONFIG['slack']['webhooks']['es_reporter']
 
 class ConciergeQueue:
-  def __init__(self,message_queue):
+  def __init__(self,message_queue,ratings_file):
     self.event_queue = message_queue
+    self.ratings_file = ratings_file
 
-  def fetch_data(self,data_path,ratings_file):
-    cmd_clean_ratings = 'rm ' + constants.RATINGS_FILE
+  def fetch_data(self,data_path):
+    cmd_clean_ratings = 'rm ' + self.ratings_file
     os.system(cmd_clean_ratings)
-    s3.get(data_path,constants.RATINGS_FILE,3)
+    s3.get(data_path,self.ratings_file,3)
 
   def train(self,job_data):
     oNewLogger = Logger(
@@ -58,7 +59,7 @@ class ConciergeQueue:
       log.set_logger(oNewLogger)
 
       self.fetch_data(s3_path)
-      df = data_io.load_dataset(',',constants.RATINGS_FILE)
+      df = data_io.load_dataset(',',self.ratings_file)
       max_ts,dataset = CollaborativeFilter.df_to_timestamp_and_dataset(df)
       cf = CollaborativeFilter(CollaborativeFilter.fm_model(),metrics.MAE() + metrics.RMSE())
       cf.timestamp = max_ts
