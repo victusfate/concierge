@@ -16,19 +16,18 @@ import async_timeout
 import aioredis
 import random
 
-METRIC_KEY = 'river_metric'
-MODEL_KEY  = 'river_model'
-
 DEFAULT_PATH = '/tmp'
 MODEL_FILE  = 'model.sav'
 METRIC_FILE = 'metric.sav'
 
-FEED_UPDATES = 'feed_updates'
 
 
 class CollaborativeFilter:
-  def __init__(self,model,metric = metrics.MAE() + metrics.RMSE()):
+  def __init__(self,name,model = None,metric = None):
+    if (name not in constants.POSSIBLE_CF_NAMES):
+      raise ValueError(self.name,'name must be one of: ' + ','.join(constants.POSSIBLE_CF_NAMES))
     self.channel = None
+    self.name    = name
     self.model   = model
     self.metric  = metric
 
@@ -45,33 +44,25 @@ class CollaborativeFilter:
       dataset.append(({'user': user_id,'item': item_id},rating))
     return max_ts,dataset
 
-  def cache_get_metric_and_model(self):
-    cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)
-    self.metric = pickle.loads(cache.get(METRIC_KEY))
-    self.model  = pickle.loads(cache.get(MODEL_KEY))
-
-  def cache_set_metric_and_model(self):
-    cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)
-    cache.set(METRIC_KEY,pickle.dumps(self.metric))
-    cache.set(MODEL_KEY,pickle.dumps(self.model))
-
   # file IO
-  def save_to_file(self,file_path = DEFAULT_PATH):
+  def save_to_file(self,file_path):
     model_path = os.path.join(file_path,MODEL_FILE)
     metric_path = os.path.join(file_path,METRIC_FILE)
-    print('creating file_path if it does not exist',file_path)
+    log.info('save_to_file',self.name,'creating file_path if it does not exist',file_path)
     os.makedirs(file_path, exist_ok=True)
-    print('file_path exists?',os.path.exists(file_path))
+    log.info('save_to_file',self.name,'file_path exists?',os.path.exists(file_path))
     pickle.dump(self.model,open(model_path,'wb'))
     pickle.dump(self.metric,open(metric_path,'wb'))
 
-  def load_from_file(self,file_path = DEFAULT_PATH):
+  def load_from_file(self,file_path):
     model_path = os.path.join(file_path,MODEL_FILE)
     metric_path = os.path.join(file_path,METRIC_FILE)
     self.model  = pickle.load(open(model_path,'rb'))
     self.metric = pickle.load(open(metric_path,'rb'))
 
-  def export_to_s3(self,file_path = DEFAULT_PATH,bucket_path = constants.EVENT_MODELS_PATH,timestamp = None, date_str = None):
+  def export_to_s3(self,base_path = DEFAULT_PATH,base_bucket_path = constants.BASE_MODELS_PATH,timestamp = None, date_str = None):
+    file_path = os.path.join(base_path,self.name)
+    bucket_path = os.path.join(base_bucket_path,self.name + '_models')
     # if no timestamp is passed in, use the model's timestamp    
     if timestamp is None:
       timestamp = self.timestamp
@@ -88,13 +79,16 @@ class CollaborativeFilter:
     constants.s3.put(model_path,os.path.join(bucket_path,'latest',MODEL_FILE))
     constants.s3.put(metric_path,os.path.join(bucket_path,'latest',METRIC_FILE))
 
-  def import_from_s3(self,file_path = DEFAULT_PATH,bucket_path = constants.EVENT_MODELS_PATH):
+  def import_from_s3(self,base_path = DEFAULT_PATH,base_bucket_path = constants.BASE_MODELS_PATH):
+    file_path      = os.path.join(base_path,self.name)
+    os.makedirs(file_path, exist_ok=True)
+    bucket_path    = os.path.join(base_bucket_path,self.name + '_models')
     s3_model_path  = os.path.join(bucket_path,'latest',MODEL_FILE)
     s3_metric_path = os.path.join(bucket_path,'latest',METRIC_FILE)
     model_path     = os.path.join(file_path,MODEL_FILE)
     metric_path    = os.path.join(file_path,METRIC_FILE)
     # concierge/models/latest/{model/metric}.sav path
-    print('s3 paths',s3_model_path,s3_metric_path)
+    log.info('import_from_s3',self.name,'s3 paths',s3_model_path,s3_metric_path)
     constants.s3.get(s3_model_path,model_path)
     constants.s3.get(s3_metric_path,metric_path)
     self.load_from_file(file_path)
@@ -116,7 +110,7 @@ class CollaborativeFilter:
       self.model = self.model.learn_one(x, y)      # make the model learn   
     if self.model.timestamp is None or (max_ts is not None and max_ts > self.model.timestamp):
       self.model.timestamp = max_ts
-      print('updated model timestamp',self.model.timestamp)
+      log.info('update_model',self.name + ' updated model timestamp',self.model.timestamp)
     # extra logging for W2-3228
     try:
       user_id = '128x9v1'
@@ -129,16 +123,24 @@ class CollaborativeFilter:
           test_weights[item_id] = self.model.regressor.steps['FMRegressor'].weights[model_item_id]
         else:
           test_weights[item_id] = 'NA'
-      log.info('update_model','y_min,y_max',self.model.y_min,self.model.y_max,'random scores after update for user',user_id,'scores',scores,'test_weights',test_weights)
+      log.info('update_model',self.name,'y_min,y_max',self.model.y_min,self.model.y_max,'random scores after update for user',user_id,'scores',scores,'test_weights',test_weights)
     except Exception as e:
-      log.info('update_model', e)
+      log.info('update_model',self.name, e)
     
 
 
   def delta_update(self):
+    set_name = None
+    if self.name == constants.CF_EVENT:
+      set_name = constants.FEED_UPDATES
+    elif self.name == constants.CF_MEDIA:
+      set_name = constants.MEDIA_UPDATES
+    else:
+      return
+    
     cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)
-    raw_updates = cache.zrangebyscore(FEED_UPDATES,self.model.timestamp,'inf')
-    print('delta_update count',len(raw_updates))
+    raw_updates = cache.zrangebyscore(set_name,self.model.timestamp,'inf')
+    log.info('delta_update',self.name,'count',len(raw_updates))
     message_data = []
     for update in raw_updates:
       update = update.decode('utf-8')
@@ -155,7 +157,7 @@ class CollaborativeFilter:
               message = await channel.get_message(ignore_subscribe_messages=True)
               if message is not None:
                 smessage = message["data"].decode()
-                print(f"(Reader) Message Received: {smessage}")
+                log.info('subscribe_to_updates',self.name,f"(Reader) Message Received: {smessage}")
                 message_data = json.loads(smessage)
                 if not isinstance(message_data, list):
                   message_data = [message_data]
@@ -170,7 +172,7 @@ class CollaborativeFilter:
       fut = await asyncio.create_task(reader(pubsub))
       return fut
     except Exception as e:
-      log.err('subscribe_to_updates',e)
+      log.err('subscribe_to_updates',self.name,e)
       fut = asyncio.get_running_loop().create_future()
       fut.set_exception(e)
       return fut

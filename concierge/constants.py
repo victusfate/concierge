@@ -23,8 +23,17 @@ log.reset()
 # == Main Thread Data Processing ===============================================
 # ==============================================================================
 
-EVENT_RATINGS_FILE     = '/tmp/eventScores.csv'
-MEDIA_RATINGS_FILE     = '/tmp/mediaScores.csv'
+CF_EVENT = 'event'
+CF_MEDIA = 'media'
+POSSIBLE_CF_NAMES  = [CF_EVENT,CF_MEDIA]
+EVENT_RATINGS_FILE = '/tmp/' + CF_EVENT + 'Scores.csv'
+MEDIA_RATINGS_FILE = '/tmp/' + CF_MEDIA + 'Scores.csv'
+BASE_MODELS_PATH   = 'concierge/'
+EVENTS_CHANNEL     = 'cf_updates'
+MEDIA_CHANNEL      = 'cf_media_updates'
+FEED_UPDATES       = 'feed_updates'
+MEDIA_UPDATES      = 'media_updates'
+
 
 ITEM_COLUMN      = 'item_id'
 RATING_COLUMN    = 'rating'
@@ -46,9 +55,6 @@ EVAL_USER_KEY    = "eval_{}".format(USER_COLUMN)
 EVAL_ITEM_KEY    = "eval_{}".format(ITEM_COLUMN)
 TEST_SET_RATIO   = 2 # train with all data
 
-
-EVENT_MODELS_PATH        = 'concierge/event_models'
-MEDIA_MODELS_PATH        = 'concierge/media_models'
 AWS_REGION               = 'us-east-1'
 AWS_BUCKET               = 'welcome.local'
 AWS_BUCKET_INTERNAL      = None
@@ -140,6 +146,7 @@ def setConfig(env=None):
 setConfig()
 
 # shared message queues
+print('EVENT_QUEUE_ROOT_NAME',EVENT_QUEUE_ROOT_NAME,'ENVIRONMENT',ENVIRONMENT,'AWS_PROFILE',AWS_PROFILE,'AWS_REGION',AWS_REGION)
 event_queue = message_queue.MessageQueue(name=EVENT_QUEUE_ROOT_NAME,env=ENVIRONMENT,profile_name=AWS_PROFILE,region_name=AWS_REGION)
 media_queue = message_queue.MessageQueue(name=MEDIA_QUEUE_ROOT_NAME,env=ENVIRONMENT,profile_name=AWS_PROFILE,region_name=AWS_REGION)
 

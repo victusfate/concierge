@@ -11,7 +11,7 @@ cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)
 
 df = data_io.load_dataset(',',constants.EVENT_RATINGS_FILE)
 max_ts,dataset = CollaborativeFilter.df_to_timestamp_and_dataset(df)
-cf = CollaborativeFilter(CollaborativeFilter.fm_model(),metrics.MAE() + metrics.RMSE())
+cf = CollaborativeFilter(constants.CF_EVENT,CollaborativeFilter.fm_model(),metrics.MAE() + metrics.RMSE())
 cf.timestamp = max_ts
 
 # cf.data_stats(dataset)
@@ -20,23 +20,6 @@ cf.learn(dataset,max_ts)
 # cf.evaluate(dataset)
 tLearnEnd = time.time()
 print('tLearn',tLearnEnd-tLearnStart)
-
-# tCacheSetStart = time.time()
-# cf.cache_set_metric_and_model()
-# tCacheSetEnd = time.time()
-# print('tCacheSet',tCacheSetEnd-tCacheSetStart)
-
-# tSaveStart = time.time()
-# cf.save_to_file()
-# tSaveEnd = time.time()
-# print('tSave',tSaveEnd-tSaveStart)
-
-# # make sure it works
-# cache_cf = CollaborativeFilter(CollaborativeFilter.fm_model(),metrics.MAE() + metrics.RMSE())
-# tCacheGetStart = time.time()
-# cache_cf.cache_get_metric_and_model()
-# tCacheGetEnd = time.time()
-# print('tCacheGet',tCacheGetEnd-tCacheGetStart)
 
 timestamp = int(time.time())
 new_model_metric_path = '/tmp/' + str(timestamp)
@@ -48,8 +31,7 @@ os.system('rm /tmp/metric.sav')
 
 
 # make sure it works
-# load_cf = CollaborativeFilter(CollaborativeFilter.fm_model(),metrics.MAE() + metrics.RMSE())
-load_cf = CollaborativeFilter(None)
+load_cf = CollaborativeFilter(constants.CF_EVENT)
 tLoadStart = time.time()
 load_cf.import_from_s3()
 # load_cf.load_from_file()

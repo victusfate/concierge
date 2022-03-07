@@ -2,7 +2,7 @@ import time
 from concierge import constants
 from concierge.collaborative_filter import CollaborativeFilter
 
-cf = CollaborativeFilter(None)
+cf = CollaborativeFilter(constants.CF_EVENT)
 tModelStart = time.time()
 cf.import_from_s3()
 cf.delta_update()

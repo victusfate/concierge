@@ -40,7 +40,7 @@ def reset_logger():
 reset_logger()
 log.info('deployment start',tStart)
 
-cf = CollaborativeFilter(None)
+cf = CollaborativeFilter(constants.CF_EVENT)
 tModelStart = time.time()
 cf.import_from_s3()
 cf.delta_update()
@@ -92,7 +92,7 @@ async def user_items_post(request,user_id=None):
 
 async def sub():
   global cf
-  fut = await cf.subscribe_to_updates(CHANNEL)
+  fut = await cf.subscribe_to_updates(constants.EVENTS_CHANNEL)
   if fut.exception():
     log.err('sub.exception',fut.exception())
   return fut

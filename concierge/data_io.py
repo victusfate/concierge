@@ -29,7 +29,7 @@ MAX_RATING = constants.MAX_RATING
 def read_dataset(delimiter, input_file): 
   """Load dataset, and create train and set sparse matrices.
 
-  Assumes USER_COLUMN, ITEM_COLUMN, RATING_COLUMN, and CITY_COLUMN columns.
+  Assumes USER_COLUMN, ITEM_COLUMN, RATING_COLUMN, and TIMESTAMP_COLUMN columns.
 
   Args:
     delimiter: file delimiter

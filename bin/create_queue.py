@@ -15,7 +15,7 @@ def create_queue(name):
 
   # Create a SQS queue
   mq = message_queue.MessageQueue(name=name,
-    env=constants.ENVIRONMENT,
+    env='local',
     region_name=constants.AWS_REGION,
     profile_name=constants.AWS_PROFILE)
   print({'queue_name': mq.queue_name})

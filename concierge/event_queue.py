@@ -61,7 +61,7 @@ class ConciergeQueue:
       self.fetch_data(s3_path)
       df = data_io.load_dataset(',',self.ratings_file)
       max_ts,dataset = CollaborativeFilter.df_to_timestamp_and_dataset(df)
-      cf = CollaborativeFilter(CollaborativeFilter.fm_model(),metrics.MAE() + metrics.RMSE())
+      cf = CollaborativeFilter(constants.CF_EVENT,CollaborativeFilter.fm_model(),metrics.MAE() + metrics.RMSE())
       cf.timestamp = max_ts
 
       tLearnStart = time.time()
