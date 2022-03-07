@@ -34,7 +34,6 @@ os.system('rm /tmp/metric.sav')
 load_cf = CollaborativeFilter(constants.CF_EVENT)
 tLoadStart = time.time()
 load_cf.import_from_s3()
-# load_cf.load_from_file()
 tLoadEnd = time.time()
 print('tImport from s3',tLoadEnd-tLoadStart)
 
