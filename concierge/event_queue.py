@@ -23,7 +23,8 @@ service_name = 'concierge.concierge_queue'
 alert_webhook = constants.CONFIG['slack']['webhooks']['es_reporter']
 
 class ConciergeQueue:
-  def __init__(self,message_queue,ratings_file):
+  def __init__(self,name,message_queue,ratings_file):
+    self.name = name
     self.event_queue = message_queue
     self.ratings_file = ratings_file
 

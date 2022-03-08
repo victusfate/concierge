@@ -40,17 +40,17 @@ def reset_logger():
 reset_logger()
 log.info('deployment bump start',tStart)
 
-cf = CollaborativeFilter(constants.CF_EVENT)
+cf_events = CollaborativeFilter(constants.CF_EVENT)
 tModelStart = time.time()
-cf.import_from_s3()
-cf.delta_update()
+cf_events.import_from_s3()
+cf_events.delta_update()
 tModelEnd = time.time()
-print('metrics',cf.metric)
-print('model',cf.model)
-print('timestamp',cf.model.timestamp)
-print('tModelLoad',tModelEnd-tModelStart)
-cf.model.random_items = cf.random_items(30)
-print('random items(useful for testing)',','.join(cf.model.random_items))
+log.info(cf_events.name,'metrics',cf_events.metric)
+log.info(cf_events.name,'model',cf_events.model)
+log.info(cf_events.name,'timestamp',cf_events.model.timestamp)
+log.info(cf_events.name,'tModelLoad',tModelEnd-tModelStart)
+cf_events.model.random_items = cf_events.random_items(30)
+log.info(cf_events.name,'random items(useful for testing)',','.join(cf_events.model.random_items))
 
 
 @app.route('/')
@@ -72,27 +72,27 @@ async def health(request):
 
 @app.route('/user/<user_id>/items/<items_str>',methods=['GET'])
 async def user_items_get(request,user_id=None,items_str=''):
-  global cf
+  global cf_events
   reset_logger()
   item_ids = items_str.split(',')
-  results = cf.predict(user_id,item_ids)
-  log.info('user_items_get',{'user_id': user_id, 'ymin': cf.model.y_min, 'ymax': cf.model.y_max, 'results': results})
+  results = cf_events.predict(user_id,item_ids)
+  log.info('user_items_get',{'user_id': user_id, 'ymin': cf_events.model.y_min, 'ymax': cf_events.model.y_max, 'results': results})
   log.oLogger.summary('server.user_items_get.Summary')
   return sanic_json(results)
 
 @app.route('/user/<user_id>/items',methods=['POST'])
 async def user_items_post(request,user_id=None):
-  global cf
+  global cf_events
   reset_logger()
   item_ids = request.json.get('items')
-  results = cf.predict(user_id,item_ids)
-  log.info('user_items_post',{'user_id': user_id, 'ymin': cf.model.y_min, 'ymax': cf.model.y_max, 'results': results})
+  results = cf_events.predict(user_id,item_ids)
+  log.info('user_items_post',{'user_id': user_id, 'ymin': cf_events.model.y_min, 'ymax': cf_events.model.y_max, 'results': results})
   log.oLogger.summary('server.user_items_post.Summary')
   return sanic_json(results)
 
 async def sub():
-  global cf
-  fut = await cf.subscribe_to_updates(constants.EVENTS_CHANNEL)
+  global cf_events
+  fut = await cf_events.subscribe_to_updates(constants.EVENTS_CHANNEL)
   if fut.exception():
     log.err('sub.exception',fut.exception())
   return fut
@@ -103,17 +103,6 @@ async def after_server_start(app, loop):
   if fut.exception():
     log.err('after_server_start.exception',fut.exception())
     exit(0)
-
-
-# moved to a separate worker 
-# def training_queue_worker():
-#   cq = ConciergeQueue()
-#   cq.poll()
-  
-# # start queue in seprate thread
-# queue_thread = threading.Thread(target=training_queue_worker,daemon=True)
-# queue_thread.start()
-
 
 if __name__ == '__main__':
   app.run(host='0.0.0.0',port=PORT)
