@@ -116,7 +116,7 @@ class ConciergeQueue:
         self.message_queue.purge()
         
         has_type = 'type' in job_data
-        is_training = has_type and job_data['type'] == 'train_feed_recommendations'
+        is_training = has_type and job_data['type'] == 'train_recommendations'
         has_data = 's3_path' in job_data
         if is_training and has_data:
           self.train(job_data)
