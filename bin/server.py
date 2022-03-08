@@ -117,7 +117,7 @@ async def user_items_post(request,user_id=None):
 # async def user_media_post(request,user_id=None):
 #   global cf_media
 #   reset_logger()
-#   item_ids = request.json.get('items')
+#   item_ids = request.json.get('media')
 #   results = cf_media.predict(user_id,item_ids)
 #   log.info(cf_media.name,'user_media_post',{'user_id': user_id, 'ymin': cf_media.model.y_min, 'ymax': cf_media.model.y_max, 'results': results})
 #   log.oLogger.summary('server.user_items_post.Summary')
@@ -126,7 +126,7 @@ async def user_items_post(request,user_id=None):
 async def sub():
   global cf_events
   event_sub_future = cf_events.subscribe_to_updates(constants.EVENTS_CHANNEL)
-  fut = asyncio.gather(event_sub_future,return_exceptions=True)
+  fut = await asyncio.gather(event_sub_future,return_exceptions=True)
   # global cf_media
   # media_sub_future = cf_media.subscribe_to_updates(constants.MEDIA_CHANNEL)
   # fut = asyncio.gather(event_sub_future,media_sub_future,return_exceptions=True)

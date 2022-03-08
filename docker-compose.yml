@@ -10,7 +10,6 @@ services:
     volumes:
         - ./consul/config:/consul/config
         - ./consul/data:/consul/data
-    # restart: always
     command: agent -server -config-file=/consul/config/config.json -bind 0.0.0.0 -client 0.0.0.0
   # ps2consul:
   #   image: ${ECR_URI}infra/ps2consul:master-288b666
@@ -51,7 +50,6 @@ services:
       CACHE_REDIS_HOST: redis
     depends_on:
       - consul
-    # restart: always          
   concierge-training:
     image: concierge
     networks:
@@ -67,7 +65,21 @@ services:
       CACHE_REDIS_HOST: redis
     depends_on:
       - consul
-    # restart: always          
+  media-training:
+    image: concierge
+    networks:
+        - conc
+    container_name: media-training
+    entrypoint: sh ./entrypoint_media_training.sh
+    mem_limit: 10g
+    working_dir: /var/www/concierge
+    volumes:
+      - ./:/var/www/concierge
+    environment:
+      CONSUL_HOST: consul
+      CACHE_REDIS_HOST: redis
+    depends_on:
+      - consul
 networks:
   conc:
     driver: bridge
