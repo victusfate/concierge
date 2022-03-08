@@ -65,21 +65,6 @@ services:
       CACHE_REDIS_HOST: redis
     depends_on:
       - consul
-  media-training:
-    image: concierge
-    networks:
-        - conc
-    container_name: media-training
-    entrypoint: sh ./entrypoint_media_training.sh
-    mem_limit: 10g
-    working_dir: /var/www/concierge
-    volumes:
-      - ./:/var/www/concierge
-    environment:
-      CONSUL_HOST: consul
-      CACHE_REDIS_HOST: redis
-    depends_on:
-      - consul
 networks:
   conc:
     driver: bridge

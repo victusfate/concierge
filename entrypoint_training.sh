@@ -20,4 +20,4 @@ echo $(which pip3)
 echo $(uname -s | tr A-Z a-z)
 echo "$aws_region"
 
-/usr/bin/python3 /var/www/concierge/bin/event_training_queue.py
+/usr/bin/python3 /var/www/concierge/bin/training_queue.py
