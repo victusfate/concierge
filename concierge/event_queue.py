@@ -78,7 +78,8 @@ class ConciergeQueue:
       scores = cf.predict(user_id,item_ids)
       log.info('predictions',scores)
       
-      cf.export_to_s3(base_path='/tmp',timestamp=timestamp,date_str=date)
+      new_model_metric_path = os.path.join('/tmp/',self.name,str(timestamp))
+      cf.export_to_s3(file_path=new_model_metric_path,timestamp=timestamp,date_str=date)
       # clear local model files
       os.system('rm -rf ' + new_model_metric_path)
       
