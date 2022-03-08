@@ -25,7 +25,7 @@ alert_webhook = constants.CONFIG['slack']['webhooks']['es_reporter']
 class ConciergeQueue:
   def __init__(self,name,message_queue,ratings_file):
     self.name = name
-    self.event_queue = message_queue
+    self.message_queue = message_queue
     self.ratings_file = ratings_file
 
   def fetch_data(self,data_path):
@@ -62,22 +62,22 @@ class ConciergeQueue:
       self.fetch_data(s3_path)
       df = data_io.load_dataset(',',self.ratings_file)
       max_ts,dataset = CollaborativeFilter.df_to_timestamp_and_dataset(df)
-      cf = CollaborativeFilter(constants.CF_EVENT,CollaborativeFilter.fm_model(),metrics.MAE() + metrics.RMSE())
+      cf = CollaborativeFilter(self.name,CollaborativeFilter.fm_model(),metrics.MAE() + metrics.RMSE())
       cf.timestamp = max_ts
 
       tLearnStart = time.time()
       cf.learn(dataset,max_ts)
       tLearnEnd = time.time()
-      log.info('tLearn',tLearnEnd-tLearnStart)
+      log.info(self.name,'tLearn',tLearnEnd-tLearnStart)
 
       # ensure its working before uploading to s3/updating latest model
       user_id   = '128x9v1'
       # grab 10 feed events I have ratings for this
       df_user   = df.loc[df['user_id'] == user_id]
       item_ids = df_user['item_id'].tolist()
-      log.info('user_items',{ 'user_id': user_id, 'item_ids': item_ids})
+      log.info(self.name,'user_items',{ 'user_id': user_id, 'item_ids': item_ids})
       scores = cf.predict(user_id,item_ids)
-      log.info('predictions',scores)
+      log.info(self.name,'predictions',scores)
       
       new_model_metric_path = os.path.join('/tmp/',self.name,str(timestamp))
       cf.export_to_s3(file_path=new_model_metric_path,timestamp=timestamp,date_str=date)
@@ -85,7 +85,7 @@ class ConciergeQueue:
       os.system('rm -rf ' + new_model_metric_path)
       
     except Exception as e:
-      log.err('training.error','unhandled Exception',e)
+      log.err(self.name,'training.error','unhandled Exception',e)
 
   def poll(self):
     while True:
@@ -108,12 +108,12 @@ class ConciergeQueue:
         #   '--p': 'parent_hash'
         # }
 
-        log.info('before_event_queue_pop',int(time.time()))
-        job_data = self.event_queue.pop()
-        log.info('received_payload_data',job_data)
+        log.info(self.name,'before_message_queue_pop',int(time.time()))
+        job_data = self.message_queue.pop()
+        log.info(self.name,'received_payload_data',job_data)
         
         # ensure queue is clear (if we backup training, clear queue)
-        self.event_queue.purge()
+        self.message_queue.purge()
         
         has_type = 'type' in job_data
         is_training = has_type and job_data['type'] == 'train_feed_recommendations'
@@ -121,5 +121,5 @@ class ConciergeQueue:
         if is_training and has_data:
           self.train(job_data)
       except Exception as e:
-        log.err('poll','unhandled Exception',e)
+        log.err(self.name,'poll','unhandled Exception',e)
 
