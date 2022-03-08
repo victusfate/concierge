@@ -135,7 +135,7 @@ class CollaborativeFilter:
   def delta_update(self):
     set_name = None
     if self.name == constants.CF_EVENT:
-      set_name = constants.FEED_UPDATES
+      set_name = constants.EVENT_UPDATES
     elif self.name == constants.CF_MEDIA:
       set_name = constants.MEDIA_UPDATES
     else:

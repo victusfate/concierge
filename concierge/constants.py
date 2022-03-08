@@ -29,9 +29,9 @@ POSSIBLE_CF_NAMES  = [CF_EVENT,CF_MEDIA]
 EVENT_RATINGS_FILE = '/tmp/' + CF_EVENT + 'Scores.csv'
 MEDIA_RATINGS_FILE = '/tmp/' + CF_MEDIA + 'Scores.csv'
 BASE_MODELS_PATH   = 'concierge/'
-EVENTS_CHANNEL     = 'cf_event_updates'
-MEDIA_CHANNEL      = 'cf_media_updates'
-FEED_UPDATES       = 'feed_updates'
+EVENTS_CHANNEL     = 'cf_' + CF_EVENT + '_updates'
+MEDIA_CHANNEL      = 'cf_' + CF_MEDIA + '_updates'
+EVENT_UPDATES      = 'event_updates'
 MEDIA_UPDATES      = 'media_updates'
 
 
