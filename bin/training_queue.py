@@ -11,8 +11,8 @@ def media_queue_worker():
   mq.poll()
 
 # separate threads 
-event_queue_thread = threading.Thread(target=event_queue_worker,daemon=True)
+event_queue_thread = threading.Thread(target=event_queue_worker)
 event_queue_thread.start()
 
-media_queue_thread = threading.Thread(target=media_queue_worker,daemon=True)
+media_queue_thread = threading.Thread(target=media_queue_worker)
 media_queue_thread.start()
