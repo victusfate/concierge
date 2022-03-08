@@ -3,12 +3,12 @@ from concierge import constants
 from concierge.concierge_queue import ConciergeQueue
 
 def event_queue_worker():
-  cq = ConciergeQueue(constants.CF_EVENT,constants.event_queue,constants.EVENT_RATINGS_FILE)
-  cq.poll()
+  eq = ConciergeQueue(constants.CF_EVENT,constants.event_queue,constants.EVENT_RATINGS_FILE)
+  eq.poll()
   
 def media_queue_worker():
-  cq = ConciergeQueue(constants.CF_MEDIA,constants.media_queue,constants.MEDIA_RATINGS_FILE)
-  cq.poll()
+  mq = ConciergeQueue(constants.CF_MEDIA,constants.media_queue,constants.MEDIA_RATINGS_FILE)
+  mq.poll()
 
 # separate threads 
 event_queue_thread = threading.Thread(target=event_queue_worker,daemon=True)
