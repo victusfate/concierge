@@ -59,6 +59,12 @@ class CollaborativeFilter:
     metric_path = os.path.join(file_path,METRIC_FILE)
     self.model  = pickle.load(open(model_path,'rb'))
     self.metric = pickle.load(open(metric_path,'rb'))
+    # ensure we always have a valid timestamp for delta training
+    if self.model.timestamp is None:
+      log.warn('load_from_file',self.name,'model.timestamp is None, setting to now')
+      self.model.timestamp = time.time()
+    
+
   
   def get_bucket_path(self,base_bucket_path):
     return os.path.join(base_bucket_path,self.name + '_models')

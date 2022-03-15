@@ -63,6 +63,8 @@ class ConciergeQueue:
       df = data_io.load_dataset(',',self.ratings_file)
       max_ts,dataset = CollaborativeFilter.df_to_timestamp_and_dataset(df)
       cf = CollaborativeFilter(self.name,CollaborativeFilter.fm_model(),metrics.MAE() + metrics.RMSE())
+      if max_ts is None:
+        max_ts = time.time()
       cf.timestamp = max_ts
 
       tLearnStart = time.time()
