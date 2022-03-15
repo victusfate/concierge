@@ -73,26 +73,6 @@ async def health(request):
   }
   return sanic_json(logs)
 
-@app.route('/user/<user_id>/items/<items_str>',methods=['GET'])
-async def user_items_get(request,user_id=None,items_str=''):
-  global cf_events
-  reset_logger()
-  item_ids = items_str.split(',')
-  results = cf_events.predict(user_id,item_ids)
-  log.info(cf_events.name,'user_items_get',{'user_id': user_id, 'ymin': cf_events.model.y_min, 'ymax': cf_events.model.y_max, 'results': results})
-  log.oLogger.summary('server.user_items_get.Summary')
-  return sanic_json(results)
-
-@app.route('/user/<user_id>/items',methods=['POST'])
-async def user_items_post(request,user_id=None):
-  global cf_events
-  reset_logger()
-  item_ids = request.json.get('items')
-  results = cf_events.predict(user_id,item_ids)
-  log.info(cf_events.name,'user_items_post',{'user_id': user_id, 'ymin': cf_events.model.y_min, 'ymax': cf_events.model.y_max, 'results': results})
-  log.oLogger.summary('server.user_items_post.Summary')
-  return sanic_json(results)
-
 @app.route('/user/<user_id>/events/<items_str>',methods=['GET'])
 async def user_events_get(request,user_id=None,items_str=''):
   global cf_events
