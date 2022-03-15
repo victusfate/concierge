@@ -140,7 +140,8 @@ class CollaborativeFilter:
       set_name = constants.MEDIA_UPDATES
     else:
       return
-    
+
+    log.info('delta_update',self.name,'set_name',set_name,'timestamp',self.model.timestamp)
     cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)
     raw_updates = cache.zrangebyscore(set_name,self.model.timestamp,'inf')
     log.info('delta_update',self.name,'count',len(raw_updates))
