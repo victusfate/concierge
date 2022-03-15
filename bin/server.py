@@ -53,9 +53,7 @@ log.info(cf_media.name,'metrics',cf_media.metric)
 log.info(cf_media.name,'model',cf_media.model)
 log.info(cf_media.name,'timestamp',cf_media.model.timestamp)
 log.info(cf_media.name,'tModelLoad',tModelEnd-tModelStart)
-# d2/beta don't have enough data yet
-# cf_media.model.random_items = cf_media.random_items(30)
-cf_media.model.random_items = []
+cf_media.model.random_items = cf_media.random_items(30)
 log.info(cf_media.name,'random items(useful for testing)',','.join(cf_media.model.random_items))
 
 @app.route('/')
