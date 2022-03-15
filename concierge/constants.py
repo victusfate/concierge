@@ -121,7 +121,6 @@ def setConfig(env=None):
   if 'aws' in CONFIG and 'sqs' in CONFIG['aws'] and 'queues' in CONFIG['aws']['sqs'] and 'media_training' in CONFIG['aws']['sqs']['queues']:
     MEDIA_QUEUE_ROOT_NAME = CONFIG['aws']['sqs']['queues']['media_training']
 
-
   def fabio_ip():
     if os.getenv('NOMAD_HOST_IP_concierge'):
       return os.getenv('NOMAD_HOST_IP_concierge')

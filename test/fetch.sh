@@ -10,3 +10,7 @@ echo $most_recent_eventScores
 echo  "aws s3 cp s3://prod.welco.me/$most_recent_eventScores /tmp/eventScores.csv"
 $aws_exec s3 cp "s3://prod.welco.me/$most_recent_eventScores" /tmp/eventScores.csv
 
+most_recent_mediaScores=$(aws s3 ls --recursive s3://prod.welco.me/concierge/media_scores | grep 'mediaScores.csv' | sort -r | head -n 1 | awk '{print $4}')
+echo $most_recent_mediaScores
+echo  "aws s3 cp s3://prod.welco.me/$most_recent_mediaScores /tmp/mediaScores.csv"
+$aws_exec s3 cp "s3://prod.welco.me/$most_recent_mediaScores" /tmp/mediaScores.csv
