@@ -275,6 +275,8 @@ class CollaborativeFilter:
   def random_items(self,n=100):
     weights = self.model.regressor.steps['FMRegressor'].weights
     n = min(n,len(weights))
+    if n == 0:
+      return []
     keys = []
     for(k,v) in weights.items():
       akey = k.split('_')
