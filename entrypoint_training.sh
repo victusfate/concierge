@@ -21,3 +21,4 @@ echo $(uname -s | tr A-Z a-z)
 echo "$aws_region"
 
 /usr/bin/python3 /var/www/concierge/bin/training_queue.py
+# python3 -m http.server 8081

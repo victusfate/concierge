@@ -79,6 +79,8 @@ REDIS_HOST               = None
 
 event_queue              = None
 media_queue              = None
+place_queue              = None
+tag_queue                = None
 s3                       = None
 CONSUL_HOST              = None
 
