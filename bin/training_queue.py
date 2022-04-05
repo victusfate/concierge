@@ -25,8 +25,8 @@ event_queue_thread.start()
 media_queue_thread = threading.Thread(target=media_queue_worker)
 media_queue_thread.start()
 
-# place_queue_thread = threading.Thread(target=place_queue_worker)
-# place_queue_thread.start()
+place_queue_thread = threading.Thread(target=place_queue_worker)
+place_queue_thread.start()
 
-# tag_queue_thread = threading.Thread(target=tag_queue_worker)
-# tag_queue_thread.start()
+tag_queue_thread = threading.Thread(target=tag_queue_worker)
+tag_queue_thread.start()
