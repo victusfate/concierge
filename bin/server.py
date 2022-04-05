@@ -32,54 +32,24 @@ def reset_logger():
 reset_logger()
 log.info('deployment bump start',tStart)
 
-cf_events = CollaborativeFilter(constants.CF_EVENT)
-tModelStart = time.time()
-cf_events.import_from_s3()
-cf_events.delta_update()
-tModelEnd = time.time()
-log.info(cf_events.name,'metrics',cf_events.metric)
-log.info(cf_events.name,'model',cf_events.model)
-log.info(cf_events.name,'timestamp',cf_events.model.timestamp)
-log.info(cf_events.name,'tModelLoad',tModelEnd-tModelStart)
-cf_events.model.random_items = cf_events.random_items(30)
-log.info(cf_events.name,'random items(useful for testing)',','.join(cf_events.model.random_items))
+def load_cf_model(name: str):
+  cf_model = CollaborativeFilter(name)
+  tModelStart = time.time()
+  cf_model.import_from_s3()
+  cf_model.delta_update()
+  tModelEnd = time.time()
+  log.info(cf_model.name,'metrics',cf_model.metric)
+  log.info(cf_model.name,'model',cf_model.model)
+  log.info(cf_model.name,'timestamp',cf_model.model.timestamp)
+  log.info(cf_model.name,'tModelLoad',tModelEnd-tModelStart)
+  cf_model.model.random_items = cf_model.random_items(30)
+  log.info(cf_model.name,'random items(useful for testing)',','.join(cf_model.model.random_items))
+  return cf_model
 
-cf_media = CollaborativeFilter(constants.CF_MEDIA)
-tModelStart = time.time()
-cf_media.import_from_s3()
-cf_media.delta_update()
-tModelEnd = time.time()
-log.info(cf_media.name,'metrics',cf_media.metric)
-log.info(cf_media.name,'model',cf_media.model)
-log.info(cf_media.name,'timestamp',cf_media.model.timestamp)
-log.info(cf_media.name,'tModelLoad',tModelEnd-tModelStart)
-cf_media.model.random_items = cf_media.random_items(30)
-log.info(cf_media.name,'random items(useful for testing)',','.join(cf_media.model.random_items))
-
-cf_places = CollaborativeFilter(constants.CF_PLACE)
-tModelStart = time.time()
-cf_places.import_from_s3()
-cf_places.delta_update()
-tModelEnd = time.time()
-log.info(cf_places.name,'metrics',cf_places.metric)
-log.info(cf_places.name,'model',cf_places.model)
-log.info(cf_places.name,'timestamp',cf_places.model.timestamp)
-log.info(cf_places.name,'tModelLoad',tModelEnd-tModelStart)
-cf_places.model.random_items = cf_places.random_items(30)
-log.info(cf_places.name,'random items(useful for testing)',','.join(cf_places.model.random_items))
-
-# enable once cf_tags is trained
-# cf_tags = CollaborativeFilter(constants.CF_TAG)
-# tModelStart = time.time()
-# cf_tags.import_from_s3()
-# cf_tags.delta_update()
-# tModelEnd = time.time()
-# log.info(cf_tags.name,'metrics',cf_tags.metric)
-# log.info(cf_tags.name,'model',cf_tags.model)
-# log.info(cf_tags.name,'timestamp',cf_tags.model.timestamp)
-# log.info(cf_tags.name,'tModelLoad',tModelEnd-tModelStart)
-# cf_tags.model.random_items = cf_tags.random_items(30)
-# log.info(cf_tags.name,'random items(useful for testing)',','.join(cf_tags.model.random_items))
+cf_events = load_cf_model(constants.CF_EVENT)
+cf_media = load_cf_model(constants.CF_MEDIA)
+cf_places = load_cf_model(constants.CF_PLACE)
+cf_tags = load_cf_model(constants.CF_TAG)
 
 @app.route('/')
 async def index(request):
@@ -158,34 +128,35 @@ async def user_places_post(request,user_id=None):
   log.oLogger.summary('server.user_places_post.Summary')
   return sanic_json(results)
 
-# enable once tags are trained
-# @app.route('/user/<user_id>/tags/<items_str>',methods=['GET'])
-# async def user_tags_get(request,user_id=None,items_str=''):
-#   global cf_tags
-#   reset_logger()
-#   item_ids = items_str.split(',')
-#   results = cf_tags.predict(user_id,item_ids)
-#   log.info(cf_tags.name,'user_tags_get',{'user_id': user_id, 'ymin': cf_tags.model.y_min, 'ymax': cf_tags.model.y_max, 'results': results})
-#   log.oLogger.summary('server.user_tags_get.Summary')
-#   return sanic_json(results)
+@app.route('/user/<user_id>/tags/<items_str>',methods=['GET'])
+async def user_tags_get(request,user_id=None,items_str=''):
+  global cf_tags
+  reset_logger()
+  item_ids = items_str.split(',')
+  results = cf_tags.predict(user_id,item_ids)
+  log.info(cf_tags.name,'user_tags_get',{'user_id': user_id, 'ymin': cf_tags.model.y_min, 'ymax': cf_tags.model.y_max, 'results': results})
+  log.oLogger.summary('server.user_tags_get.Summary')
+  return sanic_json(results)
 
-# @app.route('/user/<user_id>/tags',methods=['POST'])
-# async def user_tags_post(request,user_id=None):
-#   global cf_tags
-#   reset_logger()
-#   item_ids = request.json.get('tags')
-#   results = cf_tags.predict(user_id,item_ids)
-#   log.info(cf_tags.name,'user_tags_post',{'user_id': user_id, 'ymin': cf_tags.model.y_min, 'ymax': cf_tags.model.y_max, 'results': results})
-#   log.oLogger.summary('server.user_tags_post.Summary')
-#   return sanic_json(results)
+@app.route('/user/<user_id>/tags',methods=['POST'])
+async def user_tags_post(request,user_id=None):
+  global cf_tags
+  reset_logger()
+  item_ids = request.json.get('tags')
+  results = cf_tags.predict(user_id,item_ids)
+  log.info(cf_tags.name,'user_tags_post',{'user_id': user_id, 'ymin': cf_tags.model.y_min, 'ymax': cf_tags.model.y_max, 'results': results})
+  log.oLogger.summary('server.user_tags_post.Summary')
+  return sanic_json(results)
 
 
 
 async def sub():
-  global cf_events,cf_media
+  global cf_events,cf_media,cf_places,cf_tags
   event_sub_future = cf_events.subscribe_to_updates(constants.EVENTS_CHANNEL)
   media_sub_future = cf_media.subscribe_to_updates(constants.MEDIA_CHANNEL)
-  results = await asyncio.gather(event_sub_future,media_sub_future,return_exceptions=True)
+  place_sub_future = cf_places.subscribe_to_updates(constants.PLACE_CHANNEL)
+  tag_sub_future = cf_events.subscribe_to_updates(constants.TAG_CHANNEL)
+  results = await asyncio.gather(event_sub_future,media_sub_future,place_sub_future,tag_sub_future,return_exceptions=True)
   return results
 
 @app.after_server_start
