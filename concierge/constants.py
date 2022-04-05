@@ -25,14 +25,24 @@ log.reset()
 
 CF_EVENT = 'event'
 CF_MEDIA = 'media'
-POSSIBLE_CF_NAMES  = [CF_EVENT,CF_MEDIA]
+CF_PLACE = 'place'
+CF_TAG   = 'tag'
+POSSIBLE_CF_NAMES  = [CF_EVENT,CF_MEDIA,CF_PLACE,CF_TAG]
 EVENT_RATINGS_FILE = '/tmp/' + CF_EVENT + 'Scores.csv'
 MEDIA_RATINGS_FILE = '/tmp/' + CF_MEDIA + 'Scores.csv'
+PLACE_RATINGS_FILE = '/tmp/' + CF_PLACE + 'Scores.csv'
+TAG_RATINGS_FILE   = '/tmp/' + CF_TAG + 'Scores.csv'
 BASE_MODELS_PATH   = 'concierge/'
+# pubsub channels
 EVENTS_CHANNEL     = 'cf_' + CF_EVENT + '_updates'
 MEDIA_CHANNEL      = 'cf_' + CF_MEDIA + '_updates'
-EVENT_UPDATES      = 'event_updates'
-MEDIA_UPDATES      = 'media_updates'
+PLACE_CHANNEL      = 'cf_' + CF_PLACE + '_updates'
+TAG_CHANNEL        = 'cf_' + CF_TAG   + '_updates'
+# ordered set
+EVENT_UPDATES      = CF_EVENT + '_updates'
+MEDIA_UPDATES      = CF_MEDIA + '_updates'
+PLACE_UPDATES      = CF_PLACE + '_updates'
+TAG_UPDATES        = CF_TAG   + '_updates'
 
 
 ITEM_COLUMN      = 'item_id'
@@ -60,6 +70,8 @@ AWS_BUCKET               = 'welcome.local'
 AWS_BUCKET_INTERNAL      = None
 EVENT_QUEUE_ROOT_NAME    = None
 MEDIA_QUEUE_ROOT_NAME    = None
+PLACE_QUEUE_ROOT_NAME    = None
+TAG_QUEUE_ROOT_NAME      = None
 CONFIG                   = {}
 AWS_PROFILE              = None
 ENVIRONMENT              = 'd2'
@@ -76,8 +88,10 @@ MAX_PLACE_SCORE =  6.0
 def setConfig(env=None):
   global CONSUL_HOST, CONFIG, ENVIRONMENT
   global EVENT_QUEUE_ROOT_NAME, MEDIA_QUEUE_ROOT_NAME
+  global PLACE_QUEUE_ROOT_NAME, TAG_QUEUE_ROOT_NAME
   global AWS_REGION, AWS_BUCKET, AWS_BUCKET_INTERNAL, REDIS_HOST
   global AWS_PROFILE, EVENT_MODELS_PATH, MEDIA_MODELS_PATH
+  global PLACE_MODELS_PATH, TAG_MODELS_PATH
   try:
     CONSUL_HOST = os.getenv('CONSUL_HOST')
     print('CONSUL_HOST',CONSUL_HOST)
@@ -121,6 +135,12 @@ def setConfig(env=None):
   if 'aws' in CONFIG and 'sqs' in CONFIG['aws'] and 'queues' in CONFIG['aws']['sqs'] and 'media_training' in CONFIG['aws']['sqs']['queues']:
     MEDIA_QUEUE_ROOT_NAME = CONFIG['aws']['sqs']['queues']['media_training']
 
+  if 'aws' in CONFIG and 'sqs' in CONFIG['aws'] and 'queues' in CONFIG['aws']['sqs'] and 'place_training' in CONFIG['aws']['sqs']['queues']:
+    PLACE_QUEUE_ROOT_NAME = CONFIG['aws']['sqs']['queues']['place_training']
+
+  if 'aws' in CONFIG and 'sqs' in CONFIG['aws'] and 'queues' in CONFIG['aws']['sqs'] and 'tag_training' in CONFIG['aws']['sqs']['queues']:
+    TAG_QUEUE_ROOT_NAME = CONFIG['aws']['sqs']['queues']['tag_training']
+
   def fabio_ip():
     if os.getenv('NOMAD_HOST_IP_concierge'):
       return os.getenv('NOMAD_HOST_IP_concierge')
@@ -141,6 +161,8 @@ def setConfig(env=None):
   if sys.platform == 'darwin':
     EVENT_MODELS_PATH = 'concierge/mac_event_models'
     MEDIA_MODELS_PATH = 'concierge/mac_media_models'
+    PLACE_MODELS_PATH = 'concierge/mac_event_models'
+    TAG_MODELS_PATH = 'concierge/mac_event_models'
 
 setConfig()
 
@@ -148,6 +170,8 @@ setConfig()
 print('EVENT_QUEUE_ROOT_NAME',EVENT_QUEUE_ROOT_NAME,'ENVIRONMENT',ENVIRONMENT,'AWS_PROFILE',AWS_PROFILE,'AWS_REGION',AWS_REGION)
 event_queue = message_queue.MessageQueue(name=EVENT_QUEUE_ROOT_NAME,env=ENVIRONMENT,profile_name=AWS_PROFILE,region_name=AWS_REGION)
 media_queue = message_queue.MessageQueue(name=MEDIA_QUEUE_ROOT_NAME,env=ENVIRONMENT,profile_name=AWS_PROFILE,region_name=AWS_REGION)
+place_queue = message_queue.MessageQueue(name=PLACE_QUEUE_ROOT_NAME,env=ENVIRONMENT,profile_name=AWS_PROFILE,region_name=AWS_REGION)
+tag_queue   = message_queue.MessageQueue(name=TAG_QUEUE_ROOT_NAME,env=ENVIRONMENT,profile_name=AWS_PROFILE,region_name=AWS_REGION)
 
 
 # shared s3 interface

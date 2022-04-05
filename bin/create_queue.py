@@ -41,3 +41,5 @@ def create_queue(name):
 
 create_queue(constants.EVENT_QUEUE_ROOT_NAME)
 create_queue(constants.MEDIA_QUEUE_ROOT_NAME)
+create_queue(constants.PLACE_QUEUE_ROOT_NAME)
+create_queue(constants.TAG_QUEUE_ROOT_NAME)

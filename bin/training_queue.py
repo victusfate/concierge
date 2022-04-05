@@ -10,9 +10,23 @@ def media_queue_worker():
   mq = ConciergeQueue(constants.CF_MEDIA,constants.media_queue,constants.MEDIA_RATINGS_FILE)
   mq.poll()
 
+def place_queue_worker():
+  eq = ConciergeQueue(constants.CF_PLACE,constants.place_queue,constants.PLACE_RATINGS_FILE)
+  eq.poll()
+
+def tag_queue_worker():
+  eq = ConciergeQueue(constants.CF_TAG,constants.tag_queue,constants.TAG_RATINGS_FILE)
+  eq.poll()
+
 # separate threads 
 event_queue_thread = threading.Thread(target=event_queue_worker)
 event_queue_thread.start()
 
 media_queue_thread = threading.Thread(target=media_queue_worker)
 media_queue_thread.start()
+
+# place_queue_thread = threading.Thread(target=place_queue_worker)
+# place_queue_thread.start()
+
+# tag_queue_thread = threading.Thread(target=tag_queue_worker)
+# tag_queue_thread.start()

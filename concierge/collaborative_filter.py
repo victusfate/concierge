@@ -144,6 +144,10 @@ class CollaborativeFilter:
       set_name = constants.EVENT_UPDATES
     elif self.name == constants.CF_MEDIA:
       set_name = constants.MEDIA_UPDATES
+    elif self.name == constants.CF_PLACE:
+      set_name = constants.PLACE_UPDATES
+    elif self.name == constants.CF_TAG:
+      set_name = constants.TAG_UPDATES
     else:
       return
 

@@ -74,7 +74,7 @@ class ConciergeQueue:
 
       # ensure its working before uploading to s3/updating latest model
       user_id   = '128x9v1'
-      # grab 10 feed events I have ratings for this
+      # grab 10 items I have ratings for this
       df_user   = df.loc[df['user_id'] == user_id]
       item_ids = df_user['item_id'].tolist()
       log.info(self.name,'user_items',{ 'user_id': user_id, 'item_ids': item_ids})
