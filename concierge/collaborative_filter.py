@@ -269,6 +269,14 @@ class CollaborativeFilter:
     )
     return model
 
+  def get_items(self):
+    items = []
+    model_item_ids = self.model.regressor.steps['FMRegressor'].weights
+    for model_item_id in model_item_ids:
+      if 'item_' in model_item_id:
+        items.append(model_item_id.split('item_')[1])
+    return items
+
   def predict(self,user_id,item_ids):
     scores = {}
     for item_id in item_ids:
@@ -290,9 +298,8 @@ class CollaborativeFilter:
       return []
     keys = []
     for(k,v) in weights.items():
-      akey = k.split('_')
-      wtype = akey[0]
-      item = akey[1]
-      if wtype == 'item':
-        keys.append(item)
+      if 'item_' in k:
+        keys.append(k.split('item_')[1])
+    if n > len(keys):
+      n = len(keys)
     return random.sample(keys,n)

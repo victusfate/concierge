@@ -47,9 +47,9 @@ def load_cf_model(name: str):
   return cf_model
 
 cf_events = load_cf_model(constants.CF_EVENT)
-cf_media = load_cf_model(constants.CF_MEDIA)
+cf_media  = load_cf_model(constants.CF_MEDIA)
 cf_places = load_cf_model(constants.CF_PLACE)
-cf_tags = load_cf_model(constants.CF_TAG)
+cf_tags   = load_cf_model(constants.CF_TAG)
 
 @app.route('/')
 async def index(request):
@@ -128,11 +128,18 @@ async def user_places_post(request,user_id=None):
   log.oLogger.summary('server.user_places_post.Summary')
   return sanic_json(results)
 
+@app.route('/user/<user_id>/tags',methods=['GET'])
 @app.route('/user/<user_id>/tags/<items_str>',methods=['GET'])
 async def user_tags_get(request,user_id=None,items_str=''):
   global cf_tags
   reset_logger()
-  item_ids = items_str.split(',')
+
+  if items_str == '':
+    item_ids = cf_tags.get_items()
+  else:
+    item_ids = items_str.split(',')
+
+  results = {}
   results = cf_tags.predict(user_id,item_ids)
   log.info(cf_tags.name,'user_tags_get',{'user_id': user_id, 'ymin': cf_tags.model.y_min, 'ymax': cf_tags.model.y_max, 'results': results})
   log.oLogger.summary('server.user_tags_get.Summary')
