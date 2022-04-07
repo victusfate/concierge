@@ -14,3 +14,13 @@ most_recent_mediaScores=$(aws s3 ls --recursive s3://prod.welco.me/concierge/med
 echo $most_recent_mediaScores
 echo  "aws s3 cp s3://prod.welco.me/$most_recent_mediaScores /tmp/mediaScores.csv"
 $aws_exec s3 cp "s3://prod.welco.me/$most_recent_mediaScores" /tmp/mediaScores.csv
+
+most_recent_placeScores=$(aws s3 ls --recursive s3://prod.welco.me/concierge/place_scores | grep 'placeScores.csv' | sort -r | head -n 1 | awk '{print $4}')
+echo $most_recent_placeScores
+echo  "aws s3 cp s3://prod.welco.me/$most_recent_placeScores /tmp/placeScores.csv"
+$aws_exec s3 cp "s3://prod.welco.me/$most_recent_placeScores" /tmp/placeScores.csv
+
+most_recent_tagScores=$(aws s3 ls --recursive s3://prod.welco.me/concierge/tag_scores | grep 'tagScores.csv' | sort -r | head -n 1 | awk '{print $4}')
+echo $most_recent_tagScores
+echo  "aws s3 cp s3://prod.welco.me/$most_recent_tagScores /tmp/tagScores.csv"
+$aws_exec s3 cp "s3://prod.welco.me/$most_recent_tagScores" /tmp/tagScores.csv

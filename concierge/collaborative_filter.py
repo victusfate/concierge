@@ -196,8 +196,8 @@ class CollaborativeFilter:
   def learn(self,dataset,max_ts):
     user_ratings = {}
     for x, y in dataset:
-      user_id = x['user_id']
-      item_id = x['item_id']
+      user_id = x['user']
+      item_id = x['item']
       rating  = y
       if user_id not in user_ratings:
         user_ratings[user_id] = []
