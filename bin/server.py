@@ -169,8 +169,6 @@ async def user_rankings_get(request,user_id=None,users_str=''):
   return sanic_json(results)
   
 
-
-
 async def sub():
   global cf_events,cf_media,cf_places,cf_tags
   event_sub_future = cf_events.subscribe_to_updates(constants.EVENTS_CHANNEL)

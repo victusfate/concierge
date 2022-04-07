@@ -19,7 +19,6 @@ import random
 import numpy as np
 from numpy import dot
 from numpy.linalg import norm
-from math import *
 
 DEFAULT_PATH = '/tmp'
 MODEL_FILE  = 'model.sav'
@@ -37,7 +36,6 @@ def dot_product(x,y):
   x = np.array(x)
   y = np.array(y)
   return dot(x,y)
-
 
 class CollaborativeFilter:
   def __init__(self,name,model = None,metric = None):
@@ -80,7 +78,7 @@ class CollaborativeFilter:
     if self.model.timestamp is None:
       log.warning('load_from_file',self.name,'model.timestamp is None, setting to now')
       self.model.timestamp = time.time()
-    if self.model.user_ratings is None:
+    if not hasattr(self.model, 'user_ratings') or self.model.user_ratings is None:
       self.model.user_ratings = {}
     
   def get_bucket_path(self,base_bucket_path):

@@ -107,22 +107,6 @@ docker_publish: docker_build docker_login
 	docker tag concierge $(CONCIERGE_ECR_URI)
 	docker push $(CONCIERGE_ECR_URI)
 
-.PHONY : deploy_local	
-deploy_local: package
-	gsutil cp dist/concierge*.tar.gz gs://welcome_local/code/concierge-0.1.0.tar.gz
-
-.PHONY : deploy_d2
-deploy_d2: package
-	gsutil cp dist/concierge*.tar.gz gs://welcome_d2/code/concierge-0.1.0.tar.gz
-
-.PHONY : deploy_beta
-deploy_beta: package
-	gsutil cp dist/concierge*.tar.gz gs://welcome_beta/code/concierge-0.1.0.tar.gz
-
-.PHONY : deploy_prod
-deploy_prod: package
-	gsutil cp dist/concierge*.tar.gz gs://welcome_prod/code/concierge-0.1.0.tar.gz
-
 .PHONY : os
 os :
 	@echo $(OS)

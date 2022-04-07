@@ -5,6 +5,6 @@ psutil==5.6.*
 python-consul==1.1.*
 redis==3.5.*
 aioredis==2.0.*
+numpy==1.22.*
 git+https://github.com/victusfate/rsyslog_cee.git@main#egg=rsyslog_cee
 git+https://github.com/victusfate/bandolier.git@main#egg=bandolier
-numpy==1.22.*
