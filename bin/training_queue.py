@@ -11,12 +11,12 @@ def media_queue_worker():
   mq.poll()
 
 def place_queue_worker():
-  eq = ConciergeQueue(constants.CF_PLACE,constants.place_queue,constants.PLACE_RATINGS_FILE)
-  eq.poll()
+  pq = ConciergeQueue(constants.CF_PLACE,constants.place_queue,constants.PLACE_RATINGS_FILE)
+  pq.poll()
 
 def tag_queue_worker():
-  eq = ConciergeQueue(constants.CF_TAG,constants.tag_queue,constants.TAG_RATINGS_FILE)
-  eq.poll()
+  tq = ConciergeQueue(constants.CF_TAG,constants.tag_queue,constants.TAG_RATINGS_FILE)
+  tq.poll()
 
 # separate threads 
 event_queue_thread = threading.Thread(target=event_queue_worker)

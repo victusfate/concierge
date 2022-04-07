@@ -1,3 +1,4 @@
+from re import M
 import pandas as pd
 import time
 from datetime import datetime
@@ -19,8 +20,6 @@ import random
 DEFAULT_PATH = '/tmp'
 MODEL_FILE  = 'model.sav'
 METRIC_FILE = 'metric.sav'
-
-
 
 class CollaborativeFilter:
   def __init__(self,name,model = None,metric = None):
@@ -64,8 +63,6 @@ class CollaborativeFilter:
       log.warning('load_from_file',self.name,'model.timestamp is None, setting to now')
       self.model.timestamp = time.time()
     
-
-  
   def get_bucket_path(self,base_bucket_path):
     return os.path.join(base_bucket_path,self.name + '_models')
 
@@ -197,12 +194,19 @@ class CollaborativeFilter:
       self.model.timestamp = max_ts
 
   def learn(self,dataset,max_ts):
+    user_ratings = {}
     for x, y in dataset:
+      user_id = x['user_id']
+      item_id = x['item_id']
+      rating  = y
+      if user_id not in user_ratings:
+        user_ratings[user_id] = []
+      user_ratings[user_id].append((item_id,rating))
       y_pred = self.model.predict_one(x)      # make a prediction
       self.metric = self.metric.update(y, y_pred)  # update the metric
       self.model = self.model.learn_one(x, y)      # make the model learn
     self.model.timestamp = max_ts
-
+    self.model.user_ratings = user_ratings
 
   # adding to the global running mean two bias terms characterizing the user and 
   # the item discrepancy from the general tendency. 
@@ -290,6 +294,33 @@ class CollaborativeFilter:
     # sort desc by score
     scores = {k: v for k, v in sorted(scores.items(), key=lambda item: item[1],reverse=True)}  
     return scores
+
+  def user_rankings(self,user_id,selected_users):
+    # get all predictions for user and 
+    # compute max dot product between that and other selected users
+    user_ratings = []
+    if user_id in self.model.user_ratings:
+      user_ratings = self.model.user_ratings[user_id]
+
+    user_scores = {}    
+    item_ids = []
+    for user_rating in user_ratings:
+      item_ids.append(user_rating[0])
+      user_scores[item_id] = user_rating[1]
+
+    similar_users = {}
+    max_dp = 1
+    for selected_user in selected_users:
+      su_scores = self.predict(selected_user,item_ids)
+      dp = 0
+      for item_id in item_ids:
+        dp += user_scores[item_id] * su_scores[item_id]
+      max_dp = max(dp,max_dp)      
+      similar_users[selected_user] = dp
+    for selected_user in selected_users:
+      similar_users[selected_user] = similar_users[selected_user] / max_dp
+    return similar_users
+
 
   def random_items(self,n=100):
     weights = self.model.regressor.steps['FMRegressor'].weights

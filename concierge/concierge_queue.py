@@ -67,10 +67,10 @@ class ConciergeQueue:
         max_ts = time.time()
       cf.timestamp = max_ts
 
-      tLearnStart = time.time()
+      learn_start = time.time()
       cf.learn(dataset,max_ts)
-      tLearnEnd = time.time()
-      log.info(self.name,'tLearn',tLearnEnd-tLearnStart)
+      learn_end = time.time()
+      log.info(self.name,'tLearn',learn_end-learn_start)
 
       # ensure its working before uploading to s3/updating latest model
       user_id   = '128x9v1'
