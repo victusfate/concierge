@@ -24,9 +24,6 @@ DEFAULT_PATH = '/tmp'
 MODEL_FILE  = 'model.sav'
 METRIC_FILE = 'metric.sav'
 
-def root(x):
-  return sqrt(sum([a*a for a in x]))
- 
 def cosine_similarity(x,y):
   x = np.array(x)
   y = np.array(y)
