@@ -9,7 +9,8 @@ reqs = [
   'psutil==5.6.*',
   'python-consul==1.1.*',
   'redis==3.5.*',
-  'aioredis==2.0.*'
+  'aioredis==2.0.*',
+  'numpy==1.22.*'
 ]
 
 setup(

@@ -16,10 +16,28 @@ import asyncio
 import async_timeout
 import aioredis
 import random
+import numpy as np
+from numpy import dot
+from numpy.linalg import norm
+from math import *
 
 DEFAULT_PATH = '/tmp'
 MODEL_FILE  = 'model.sav'
 METRIC_FILE = 'metric.sav'
+
+def root(x):
+  return sqrt(sum([a*a for a in x]))
+ 
+def cosine_similarity(x,y):
+  x = np.array(x)
+  y = np.array(y)
+  return dot(x, y)/(norm(x)*norm(y))
+
+def dot_product(x,y):
+  x = np.array(x)
+  y = np.array(y)
+  return dot(x,y)
+
 
 class CollaborativeFilter:
   def __init__(self,name,model = None,metric = None):
@@ -62,6 +80,8 @@ class CollaborativeFilter:
     if self.model.timestamp is None:
       log.warning('load_from_file',self.name,'model.timestamp is None, setting to now')
       self.model.timestamp = time.time()
+    if self.model.user_ratings is None:
+      self.model.user_ratings = {}
     
   def get_bucket_path(self,base_bucket_path):
     return os.path.join(base_bucket_path,self.name + '_models')
@@ -296,29 +316,45 @@ class CollaborativeFilter:
     return scores
 
   def user_rankings(self,user_id,selected_users):
+    similar_users = {}
+
     # get all predictions for user and 
     # compute max dot product between that and other selected users
     user_ratings = []
     if user_id in self.model.user_ratings:
       user_ratings = self.model.user_ratings[user_id]
 
+    # if user_ratings are empty, return random user-user scores    
+    if len(user_ratings) == 0:
+      for selected_user in selected_users:
+        similar_users[selected_user] = random.random()
+      similar_users = {k: v for k, v in sorted(similar_users.items(), key=lambda item: item[1],reverse=True)}
+      return similar_users
+    
     user_scores = {}    
     item_ids = []
     for user_rating in user_ratings:
-      item_ids.append(user_rating[0])
-      user_scores[item_id] = user_rating[1]
+      item_id = user_rating[0]
+      rating  = user_rating[1]
+      item_ids.append(item_id)
+      user_scores[item_id] = rating
 
-    similar_users = {}
     max_dp = 1
     for selected_user in selected_users:
       su_scores = self.predict(selected_user,item_ids)
-      dp = 0
+      # user ratings, and selected user predicted ratings
+      x = []
+      y = []
       for item_id in item_ids:
-        dp += user_scores[item_id] * su_scores[item_id]
-      max_dp = max(dp,max_dp)      
-      similar_users[selected_user] = dp
-    for selected_user in selected_users:
-      similar_users[selected_user] = similar_users[selected_user] / max_dp
+        x.append(user_scores[item_id])
+        y.append(su_scores[item_id])
+      dist = cosine_similarity(x,y)
+      # dist = dot_product(x,y)
+      max_dp = max(dist,max_dp)      
+      similar_users[selected_user] = dist
+    # for selected_user in selected_users:
+    #   similar_users[selected_user] = similar_users[selected_user] / max_dp
+    similar_users = {k: v for k, v in sorted(similar_users.items(), key=lambda item: item[1],reverse=True)}
     return similar_users
 
 

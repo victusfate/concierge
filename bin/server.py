@@ -155,6 +155,18 @@ async def user_tags_post(request,user_id=None):
   log.oLogger.summary('server.user_tags_post.Summary')
   return sanic_json(results)
 
+@app.route('/user/<user_id>/rankings/<users_str>',methods=['GET'])
+async def user_rankings_get(request,user_id=None,users_str=''):
+  global cf_places
+  reset_logger()
+
+  user_ids = users_str.split(',')
+
+  results = {}
+  results = cf_places.user_rankings(user_id,user_ids)
+  log.info(cf_tags.name,'user_rankings_get',{'user_id': user_id, 'ymin': cf_places.model.y_min, 'ymax': cf_places.model.y_max, 'results': results})
+  log.oLogger.summary('server.user_rankings_get.Summary')
+  return sanic_json(results)
   
 
 
