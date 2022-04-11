@@ -14,7 +14,7 @@ cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)
 # tf = CollaborativeFilter(constants.CF_PLACE,CollaborativeFilter.fm_model(),metrics.MAE() + metrics.RMSE())
 # tf.timestamp = max_ts
 
-# # cf.data_stats(dataset)
+# # # cf.data_stats(dataset)
 # tLearnStart = time.time()
 # tf.learn(dataset,max_ts)
 # # cf.evaluate(dataset)

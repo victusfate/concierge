@@ -76,6 +76,7 @@ class CollaborativeFilter:
       log.warning('load_from_file',self.name,'model.timestamp is None, setting to now')
       self.model.timestamp = time.time()
     if not hasattr(self.model, 'user_ratings') or self.model.user_ratings is None:
+      log.warning('load_from_file',self.name,'user_ratings is None, setting to {}')
       self.model.user_ratings = {}
     
   def get_bucket_path(self,base_bucket_path):
@@ -117,12 +118,20 @@ class CollaborativeFilter:
   def update_model(self,message_data):
     dataset = []
     max_ts = None
+    if not hasattr(self.model, 'user_ratings') or self.model.user_ratings is None:
+      self.model.user_ratings = {}
+      log.warning('update_model',self.name,'user_ratings is None, setting to {}')
+    user_ratings = self.model.user_ratings
+    log.info('update_model',self.name,'len(user_ratings)',len(user_ratings))
     for update in message_data:
       user_id = update['user_id']
       item_id = update['item_id']
       rating  = update['rating']
       ts      = update['timestamp']
       dataset.append(({'user': user_id,'item': item_id},rating))
+      if user_id not in user_ratings:
+        user_ratings[user_id] = []
+      user_ratings[user_id].append((item_id,rating))      
       if max_ts is None or ts > max_ts:
         max_ts = ts    
     for x, y in dataset:
@@ -132,6 +141,8 @@ class CollaborativeFilter:
     if self.model.timestamp is None or (max_ts is not None and max_ts > self.model.timestamp):
       self.model.timestamp = max_ts
       log.info('update_model',self.name + ' updated model timestamp',self.model.timestamp)
+    self.model.user_ratings = user_ratings
+    
     # extra logging for W2-3228
     try:
       user_id = '128x9v1'
@@ -205,8 +216,13 @@ class CollaborativeFilter:
     
   # note also modifies the model + metrics
   def evaluate(self,dataset,max_ts):
-      _ = progressive_val_score(dataset,self.model, self.metric, print_every=25_000, show_time=True, show_memory=True)
-      self.model.timestamp = max_ts
+    if not hasattr(self.model, 'user_ratings') or self.model.user_ratings is None:
+      log.warning('evaluate',self.name,'user_ratings is None, setting to {}')
+      self.model.user_ratings = {}
+    user_ratings = self.model.user_ratings
+    _ = progressive_val_score(dataset,self.model, self.metric, print_every=25_000, show_time=True, show_memory=True)
+    self.model.timestamp = max_ts
+    self.model.user_ratings = user_ratings
 
   def learn(self,dataset,max_ts):
     user_ratings = {}
