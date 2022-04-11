@@ -326,11 +326,10 @@ class CollaborativeFilter:
     scores = {k: v for k, v in sorted(scores.items(), key=lambda item: item[1],reverse=True)}  
     return scores
 
+  # get all ratings for user and compare to other user prediction vectors
   def user_rankings(self,user_id,selected_users):
     similar_users = {}
 
-    # get all predictions for user and 
-    # compute max dot product between that and other selected users
     user_ratings = []
     if user_id in self.model.user_ratings:
       user_ratings = self.model.user_ratings[user_id]
@@ -368,6 +367,27 @@ class CollaborativeFilter:
     similar_users = {k: v for k, v in sorted(similar_users.items(), key=lambda item: item[1],reverse=True)}
     return similar_users
 
+  # faster than user_rankings but lower quality comparison
+  def user_rankings2(self,user_id,selected_users):
+    user_factor = self.model.regressor.steps['FMRegressor'].latents[user_id]
+
+    similar_users = {}
+    max_dp = None
+    for selected_user in selected_users:
+      su_factor = self.model.regressor.steps['FMRegressor'].latents[selected_user]
+      dist = dot(user_factor,su_factor)
+      # dist = dot_product(x,y)
+      if max_dp is None:
+        max_dp = dist
+      else:
+        max_dp = max(dist,max_dp)      
+      similar_users[selected_user] = dist
+    if max_dp is None:
+      max_dp = 1
+    for selected_user in selected_users:
+      similar_users[selected_user] = similar_users[selected_user] / max_dp
+    similar_users = {k: v for k, v in sorted(similar_users.items(), key=lambda item: item[1],reverse=True)}
+    return similar_users
 
   def random_items(self,n=100):
     weights = self.model.regressor.steps['FMRegressor'].weights
