@@ -76,8 +76,13 @@ ifeq  ($(OS), linux)
 	$(linux_pip) uninstall -y concierge
 endif
 
+.PHONY : docker_python
+docker_python:
+	./docker_build_python3.8.sh
+
+
 .PHONY : docker_concierge_requirements
-docker_concierge_requirements:
+docker_concierge_requirements: docker_python
 	./docker_build_requirements.sh
 
 .PHONY : docker_build
