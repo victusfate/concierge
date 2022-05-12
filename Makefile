@@ -93,7 +93,7 @@ docker_build:
 .PHONY : up # assumes we have stored our built container
 up: docker_build
 	ECR_URI=$(ECR_URI) \
-	docker-compose up --remove-orphans
+	docker compose up --remove-orphans
 
 .PHONY : docker_login_1	
 # Need to login to ecr in order to allow docker cli to push images to it.  Just run this
