@@ -49,6 +49,7 @@ ITEM_COLUMN      = 'item_id'
 RATING_COLUMN    = 'rating'
 USER_COLUMN      = 'user_id'
 TIMESTAMP_COLUMN = 'timestamp'
+PLACE_SCORES_KEY = 'place_scores'
 
 RATING_COLUMNS = [USER_COLUMN, ITEM_COLUMN, RATING_COLUMN, TIMESTAMP_COLUMN]
 

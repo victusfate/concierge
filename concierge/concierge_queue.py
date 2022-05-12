@@ -9,6 +9,7 @@ from concierge import data_io
 from concierge import constants
 from concierge.collaborative_filter import CollaborativeFilter
 from river import metrics
+import redis
 
 log.set_service_name('concierge.welco.me')
 
@@ -76,7 +77,7 @@ class ConciergeQueue:
       user_id   = '128x9v1'
       # grab 10 items I have ratings for this
       df_user   = df.loc[df['user_id'] == user_id]
-      item_ids = df_user['item_id'].tolist()
+      item_ids = df_user['item_id'].tolist()[0:10]
       log.info(self.name,'user_items',{ 'user_id': user_id, 'item_ids': item_ids})
       scores = cf.predict(user_id,item_ids)
       log.info(self.name,'predictions',scores)
@@ -85,9 +86,28 @@ class ConciergeQueue:
       cf.export_to_s3(file_path=new_model_metric_path,timestamp=timestamp,date_str=date)
       # clear local model files
       os.system('rm -rf ' + new_model_metric_path)
+
+      # handle popularity map for places
+      self.popularity_map(df)
+
       
     except Exception as e:
       log.err(self.name,'training.error','unhandled Exception',e)
+  
+  def popularity_map(self,df):
+    if self.name != constants.CF_PLACE:
+      return
+    pr = df.groupby([constants.ITEM_COLUMN])[constants.RATING_COLUMN].sum()
+    pr = (pr-pr.min())/(pr.max()-pr.min())
+    item_popularity_map = pr.to_dict()
+    cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)   
+    p = cache.pipeline()
+    # dump item popularity map into redis
+    for k,v in item_popularity_map.items():
+      key = constants.PLACE_SCORES_KEY + ':' + k
+      p.set(key,v)
+    p.execute()
+    
 
   def poll(self):
     while True:

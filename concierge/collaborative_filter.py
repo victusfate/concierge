@@ -239,6 +239,7 @@ class CollaborativeFilter:
     self.model.timestamp = max_ts
     self.model.user_ratings = user_ratings
 
+
   # adding to the global running mean two bias terms characterizing the user and 
   # the item discrepancy from the general tendency. 
   # The model equation is defined as:
@@ -274,6 +275,21 @@ class CollaborativeFilter:
       y_max=constants.MAX_PLACE_SCORE
     )
     return model
+
+  def popularity_map(self,df):
+    if self.name != constants.CF_PLACE:
+      return
+    pr = df.groupby([constants.ITEM_COLUMN])[constants.RATING_COLUMN].sum()
+    pr = (pr-pr.min())/(pr.max()-pr.min())
+    item_popularity_map = pr.to_dict()
+    cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)   
+    p = cache.pipeline()
+    # dump item popularity map into redis
+    for k,v in item_popularity_map.items():
+      key = constants.PLACE_SCORES_KEY + ':' + k
+      p.set(key,v)
+    p.execute()
+
 
   # https://riverml.xyz/latest/examples/matrix-factorization-for-recommender-systems-part-2/
   #     yhat(x) = w0 + sumj=1->p(wjxj) + sumj=1->p(sumj'=j+1->p(<vj,vj'>xjxj'))
