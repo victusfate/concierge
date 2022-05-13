@@ -95,6 +95,8 @@ class ConciergeQueue:
       log.err(self.name,'training.error','unhandled Exception',e)
   
   def popularity_map(self,df):
+    tStart = time.time()
+    log.info(self.name,'popularity_map','starting, checking type',self.name,constants.CF_PLACE)
     if self.name != constants.CF_PLACE:
       return
     pr = df.groupby([constants.ITEM_COLUMN])[constants.RATING_COLUMN].sum()
@@ -107,6 +109,8 @@ class ConciergeQueue:
       key = constants.PLACE_SCORES_KEY + ':' + k
       p.set(key,v)
     p.execute()
+    tEnd = time.time()
+    log.info(self.name,'popularity_map','finished',len(item_popularity_map),'time',tEnd-tStart)
     
 
   def poll(self):
