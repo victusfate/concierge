@@ -343,7 +343,7 @@ class CollaborativeFilter:
     return scores
 
   # get all ratings for user and compare to other user prediction vectors
-  def user_rankings(self,user_id,selected_users):
+  def user_rankings_slower(self,user_id,selected_users):
     similar_users = {}
 
     user_ratings = []
@@ -384,7 +384,7 @@ class CollaborativeFilter:
     return similar_users
 
   # faster than user_rankings but lower quality comparison
-  def user_rankings2(self,user_id,selected_users):
+  def user_rankings(self,user_id,selected_users):
     user_factor = self.model.regressor.steps['FMRegressor'].latents[user_id]
 
     similar_users = {}
