@@ -96,8 +96,8 @@ class ConciergeQueue:
   
   def popularity_map(self,df):
     tStart = time.time()
-    log.info(self.name,'popularity_map','starting, checking type',self.name,constants.CF_PLACE)
-    if self.name != constants.CF_PLACE:
+    log.info(self.name,'popularity_map','starting, checking type',self.name,constants.CF_PUBLISHER)
+    if self.name != constants.CF_PUBLISHER:
       return
     pr = df.groupby([constants.ITEM_COLUMN])[constants.RATING_COLUMN].sum()
     pr = (pr-pr.min())/(pr.max()-pr.min())
