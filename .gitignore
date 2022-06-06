@@ -10,3 +10,4 @@ data/
 concierge/bin/config_welco.json
 test/*.sav
 config.test.json
+.vscode

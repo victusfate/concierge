@@ -18,6 +18,10 @@ def tag_queue_worker():
   tq = ConciergeQueue(constants.CF_TAG,constants.tag_queue,constants.TAG_RATINGS_FILE)
   tq.poll()
 
+def publisher_queue_worker():
+  pq = ConciergeQueue(constants.CF_PUBLISHER,constants.place_queue,constants.PUBLISHER_RATINGS_FILE)
+  pq.poll()
+
 # separate threads 
 event_queue_thread = threading.Thread(target=event_queue_worker)
 event_queue_thread.start()

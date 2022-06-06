@@ -27,23 +27,26 @@ CF_EVENT = 'event'
 CF_MEDIA = 'media'
 CF_PLACE = 'place'
 CF_TAG   = 'tag'
-POSSIBLE_CF_NAMES  = [CF_EVENT,CF_MEDIA,CF_PLACE,CF_TAG]
+CF_PUBLISHER = 'publisher'
+POSSIBLE_CF_NAMES  = [CF_EVENT,CF_MEDIA,CF_PLACE,CF_TAG,CF_PUBLISHER]
 EVENT_RATINGS_FILE = '/tmp/' + CF_EVENT + 'Scores.csv'
 MEDIA_RATINGS_FILE = '/tmp/' + CF_MEDIA + 'Scores.csv'
 PLACE_RATINGS_FILE = '/tmp/' + CF_PLACE + 'Scores.csv'
 TAG_RATINGS_FILE   = '/tmp/' + CF_TAG + 'Scores.csv'
+PUBLISHER_RATINGS_FILE = '/tmp/' + CF_PUBLISHER + 'Scores.csv'
+
 BASE_MODELS_PATH   = 'concierge/'
 # pubsub channels
 EVENTS_CHANNEL     = 'cf_' + CF_EVENT + '_updates'
 MEDIA_CHANNEL      = 'cf_' + CF_MEDIA + '_updates'
 PLACE_CHANNEL      = 'cf_' + CF_PLACE + '_updates'
 TAG_CHANNEL        = 'cf_' + CF_TAG   + '_updates'
+
 # ordered set
 EVENT_UPDATES      = CF_EVENT + '_updates'
 MEDIA_UPDATES      = CF_MEDIA + '_updates'
 PLACE_UPDATES      = CF_PLACE + '_updates'
 TAG_UPDATES        = CF_TAG   + '_updates'
-
 
 ITEM_COLUMN      = 'item_id'
 RATING_COLUMN    = 'rating'

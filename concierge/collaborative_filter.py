@@ -277,6 +277,7 @@ class CollaborativeFilter:
     return model
 
   def popularity_map(self,df):
+    # if self.name != constants.CF_PUBLISHER:
     if self.name != constants.CF_PLACE:
       return
     pr = df.groupby([constants.ITEM_COLUMN])[constants.RATING_COLUMN].sum()
