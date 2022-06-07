@@ -19,7 +19,7 @@ def tag_queue_worker():
   tq.poll()
 
 def publisher_queue_worker():
-  pq = ConciergeQueue(constants.CF_PUBLISHER,constants.place_queue,constants.PUBLISHER_RATINGS_FILE)
+  pq = ConciergeQueue(constants.CF_PUBLISHER,constants.publisher_queue,constants.PUBLISHER_RATINGS_FILE)
   pq.poll()
 
 # separate threads 
@@ -34,3 +34,6 @@ place_queue_thread.start()
 
 tag_queue_thread = threading.Thread(target=tag_queue_worker)
 tag_queue_thread.start()
+
+publisher_queue_thread = threading.Thread(target=publisher_queue_worker)
+publisher_queue_thread.start()

@@ -76,6 +76,7 @@ EVENT_QUEUE_ROOT_NAME    = None
 MEDIA_QUEUE_ROOT_NAME    = None
 PLACE_QUEUE_ROOT_NAME    = None
 TAG_QUEUE_ROOT_NAME      = None
+PUBLISHER_QUEUE_ROOT_NAME = None
 CONFIG                   = {}
 AWS_PROFILE              = None
 ENVIRONMENT              = 'd2'
@@ -85,6 +86,7 @@ event_queue              = None
 media_queue              = None
 place_queue              = None
 tag_queue                = None
+publisher_queue          = None
 s3                       = None
 CONSUL_HOST              = None
 
@@ -94,7 +96,7 @@ MAX_PLACE_SCORE =  6.0
 def setConfig(env=None):
   global CONSUL_HOST, CONFIG, ENVIRONMENT
   global EVENT_QUEUE_ROOT_NAME, MEDIA_QUEUE_ROOT_NAME
-  global PLACE_QUEUE_ROOT_NAME, TAG_QUEUE_ROOT_NAME
+  global PLACE_QUEUE_ROOT_NAME, TAG_QUEUE_ROOT_NAME, PUBLISHER_QUEUE_ROOT_NAME
   global AWS_REGION, AWS_BUCKET, AWS_BUCKET_INTERNAL, REDIS_HOST
   global AWS_PROFILE, EVENT_MODELS_PATH, MEDIA_MODELS_PATH
   global PLACE_MODELS_PATH, TAG_MODELS_PATH
@@ -147,6 +149,9 @@ def setConfig(env=None):
   if 'aws' in CONFIG and 'sqs' in CONFIG['aws'] and 'queues' in CONFIG['aws']['sqs'] and 'tag_training' in CONFIG['aws']['sqs']['queues']:
     TAG_QUEUE_ROOT_NAME = CONFIG['aws']['sqs']['queues']['tag_training']
 
+  if 'aws' in CONFIG and 'sqs' in CONFIG['aws'] and 'queues' in CONFIG['aws']['sqs'] and 'publisher_training' in CONFIG['aws']['sqs']['queues']:
+    PUBLISHER_QUEUE_ROOT_NAME = CONFIG['aws']['sqs']['queues']['publisher_training']
+
   def fabio_ip():
     if os.getenv('NOMAD_HOST_IP_concierge'):
       return os.getenv('NOMAD_HOST_IP_concierge')
@@ -178,6 +183,7 @@ event_queue = message_queue.MessageQueue(name=EVENT_QUEUE_ROOT_NAME,env=ENVIRONM
 media_queue = message_queue.MessageQueue(name=MEDIA_QUEUE_ROOT_NAME,env=ENVIRONMENT,profile_name=AWS_PROFILE,region_name=AWS_REGION)
 place_queue = message_queue.MessageQueue(name=PLACE_QUEUE_ROOT_NAME,env=ENVIRONMENT,profile_name=AWS_PROFILE,region_name=AWS_REGION)
 tag_queue   = message_queue.MessageQueue(name=TAG_QUEUE_ROOT_NAME,env=ENVIRONMENT,profile_name=AWS_PROFILE,region_name=AWS_REGION)
+publisher_queue = message_queue.MessageQueue(name=PUBLISHER_QUEUE_ROOT_NAME,env=ENVIRONMENT,profile_name=AWS_PROFILE,region_name=AWS_REGION)
 
 
 # shared s3 interface
