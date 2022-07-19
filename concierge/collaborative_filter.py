@@ -284,20 +284,11 @@ class CollaborativeFilter:
     item_popularity_map = pr.to_dict()
     cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)   
     # dump item popularity map into redis
+    p = cache.pipeline()
     for k,v in item_popularity_map.items():
       key = constants.PLACE_SCORES_KEY + ':' + k
-      val = cache.get(key)
-      if val:
-        val = json.loads(val)
-        val['articles'] = v
-        total = 0
-        for score in val.values():
-          total += score
-        val['total'] = total
-      else:
-        val = { 'articles': v, 'total': v }
-      cache.set(key,json.dumps(val))
-
+      p.set(key,v)
+    p.execute()
 
   # https://riverml.xyz/latest/examples/matrix-factorization-for-recommender-systems-part-2/
   #     yhat(x) = w0 + sumj=1->p(wjxj) + sumj=1->p(sumj'=j+1->p(<vj,vj'>xjxj'))
