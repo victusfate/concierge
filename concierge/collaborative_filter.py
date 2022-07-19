@@ -278,18 +278,25 @@ class CollaborativeFilter:
 
   def popularity_map(self,df):
     if self.name != constants.CF_PUBLISHER:
-    # if self.name != constants.CF_PLACE:
       return
     pr = df.groupby([constants.ITEM_COLUMN])[constants.RATING_COLUMN].sum()
     pr = (pr-pr.min())/(pr.max()-pr.min())
     item_popularity_map = pr.to_dict()
     cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)   
-    p = cache.pipeline()
     # dump item popularity map into redis
     for k,v in item_popularity_map.items():
       key = constants.PLACE_SCORES_KEY + ':' + k
-      p.set(key,v)
-    p.execute()
+      val = cache.get(key)
+      if val:
+        val = json.loads(val)
+        val['articles'] = v
+        total = 0
+        for score in val.values():
+          total += score
+        val['total'] = total
+      else:
+        val = { 'articles': v, 'total': v }
+      cache.set(key,json.dumps(val))
 
 
   # https://riverml.xyz/latest/examples/matrix-factorization-for-recommender-systems-part-2/
