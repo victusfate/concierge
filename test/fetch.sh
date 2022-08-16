@@ -24,3 +24,8 @@ most_recent_tagScores=$(aws s3 ls --recursive s3://prod.welco.me/concierge/tag_s
 echo $most_recent_tagScores
 echo  "aws s3 cp s3://prod.welco.me/$most_recent_tagScores /tmp/tagScores.csv"
 $aws_exec s3 cp "s3://prod.welco.me/$most_recent_tagScores" /tmp/tagScores.csv
+
+most_recent_publisherScores=$(aws s3 ls --recursive s3://prod.welco.me/concierge/publisher_scores | grep 'publisherScores.csv' | sort -r | head -n 1 | awk '{print $4}')
+echo $most_recent_publisherScores
+echo  "aws s3 cp s3://prod.welco.me/$most_recent_publisherScores /tmp/publisherScores.csv"
+$aws_exec s3 cp "s3://prod.welco.me/$most_recent_publisherScores" /tmp/publisherScores.csv
