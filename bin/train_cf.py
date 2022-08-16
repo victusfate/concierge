@@ -10,9 +10,9 @@ import redis
 
 cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)   
 
-df = data_io.load_dataset(',',constants.PLACE_RATINGS_FILE)
+df = data_io.load_dataset(',',constants.CF_PUBLISHER)
 max_ts,dataset = CollaborativeFilter.df_to_timestamp_and_dataset(df)
-cf = CollaborativeFilter(constants.CF_PLACE,CollaborativeFilter.fm_model(),metrics.MAE() + metrics.RMSE())
+cf = CollaborativeFilter(constants.CF_PUBLISHER,CollaborativeFilter.fm_model(),metrics.MAE() + metrics.RMSE())
 cf.timestamp = max_ts
 
 # cf.data_stats(dataset)
@@ -22,7 +22,7 @@ cf.learn(dataset,max_ts)
 tLearnEnd = time.time()
 print('tLearn',tLearnEnd-tLearnStart)
 
-pq = ConciergeQueue(constants.CF_PLACE,constants.place_queue,constants.PLACE_RATINGS_FILE)
+pq = ConciergeQueue(constants.CF_PUBLISHER,constants.place_queue,constants.PLACE_RATINGS_FILE)
 pq.popularity_map(df)
 
 timestamp = int(time.time())
@@ -35,7 +35,7 @@ os.system('rm /tmp/metric.sav')
 
 
 # make sure it works
-load_cf = CollaborativeFilter(constants.CF_PLACE)
+load_cf = CollaborativeFilter(constants.CF_PUBLISHER)
 tLoadStart = time.time()
 load_cf.import_from_s3()
 tLoadEnd = time.time()
