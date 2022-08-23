@@ -87,31 +87,15 @@ class ConciergeQueue:
       # clear local model files
       os.system('rm -rf ' + new_model_metric_path)
 
-      # handle popularity map for places
-      self.popularity_map(df)
-
+      # handle scores for places
+      cf.cache_scores(df)
       
+      # handle popularity map for published places
+      cf.popularity_map(df)
+  
     except Exception as e:
       log.err(self.name,'training.error','unhandled Exception',e)
-  
-  def popularity_map(self,df):
-    tStart = time.time()
-    log.info(self.name,'popularity_map','starting, checking type',self.name,constants.CF_PUBLISHER)
-    if self.name != constants.CF_PUBLISHER:
-      return
-    pr = df.groupby([constants.ITEM_COLUMN])[constants.RATING_COLUMN].sum()
-    pr = (pr-pr.min())/(pr.max()-pr.min())
-    item_popularity_map = pr.to_dict()
-    cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)   
-    p = cache.pipeline()
-    # dump item popularity map into redis
-    for k,v in item_popularity_map.items():
-      key = constants.PLACE_SCORES_KEY + ':' + k
-      p.set(key,v)
-    p.execute()
-    tEnd = time.time()
-    log.info(self.name,'popularity_map','finished',len(item_popularity_map),'time',tEnd-tStart)
-    
+      
 
   def poll(self):
     while True:

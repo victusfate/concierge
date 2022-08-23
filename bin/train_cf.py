@@ -10,9 +10,9 @@ import redis
 
 cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)   
 
-df = data_io.load_dataset(',',constants.PUBLISHER_RATINGS_FILE)
+df = data_io.load_dataset(',',constants.PLACE_RATINGS_FILE)
 max_ts,dataset = CollaborativeFilter.df_to_timestamp_and_dataset(df)
-cf = CollaborativeFilter(constants.CF_PUBLISHER,CollaborativeFilter.fm_model(),metrics.MAE() + metrics.RMSE())
+cf = CollaborativeFilter(constants.CF_PLACE,CollaborativeFilter.fm_model(),metrics.MAE() + metrics.RMSE())
 cf.timestamp = max_ts
 
 # cf.data_stats(dataset)
@@ -22,8 +22,10 @@ cf.learn(dataset,max_ts)
 tLearnEnd = time.time()
 print('tLearn',tLearnEnd-tLearnStart)
 
-pq = ConciergeQueue(constants.CF_PUBLISHER,constants.place_queue,constants.PLACE_RATINGS_FILE)
-pq.popularity_map(df)
+tCacheScoresStart = time.time()
+cf.cache_scores(df)
+tCacheScoresEnd = time.time()
+print('tCacheScores',tCacheScoresEnd-tCacheScoresStart)
 
 timestamp = int(time.time())
 new_model_metric_path = '/tmp/' + str(timestamp)

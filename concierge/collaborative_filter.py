@@ -277,18 +277,38 @@ class CollaborativeFilter:
     return model
 
   def popularity_map(self,df):
+    tStart = time.time()
+    log.info(self.name,'popularity_map','starting, checking type',self.name,constants.CF_PUBLISHER)
     if self.name != constants.CF_PUBLISHER:
       return
     pr = df.groupby([constants.ITEM_COLUMN])[constants.RATING_COLUMN].sum()
     pr = (pr-pr.min())/(pr.max()-pr.min())
     item_popularity_map = pr.to_dict()
     cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)   
-    # dump item popularity map into redis
     p = cache.pipeline()
+    # dump item popularity map into redis
     for k,v in item_popularity_map.items():
+      key = constants.POPULARITY_SCORES + ':' + k
+      p.set(key,v)
+    p.execute()
+    tEnd = time.time()
+    log.info(self.name,'popularity_map','finished',len(item_popularity_map),'time',tEnd-tStart)
+
+  def cache_scores(self,df):
+    tStart = time.time()
+    log.info(self.name,'cache_scores','starting, checking type',self.name)
+    if self.name != constants.CF_PLACE:
+      return
+    scores = self.novel_user_predictions()
+    cache = redis.Redis(host=constants.REDIS_HOST, port=6379, db=0)   
+    p = cache.pipeline()
+    # dump item popularity map into redis
+    for k,v in scores.items():
       key = constants.PLACE_SCORES_KEY + ':' + k
       p.set(key,v)
     p.execute()
+    tEnd = time.time()
+    log.info(self.name,'cache_scores','finished',len(scores),'time',tEnd-tStart)
 
   # https://riverml.xyz/latest/examples/matrix-factorization-for-recommender-systems-part-2/
   #     yhat(x) = w0 + sumj=1->p(wjxj) + sumj=1->p(sumj'=j+1->p(<vj,vj'>xjxj'))
@@ -326,6 +346,11 @@ class CollaborativeFilter:
       if 'item_' in model_item_id:
         items.append(model_item_id.split('item_')[1])
     return items
+
+  def novel_user_predictions(self):
+    item_ids = self.get_items()
+    return self.predict('this_user_does_not_exist',item_ids)
+
 
   def predict(self,user_id,item_ids):
     scores = {}
