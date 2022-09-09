@@ -9,6 +9,17 @@ import redis
 import asyncio
 import os
 import psutil
+import urllib.parse
+
+import spacy
+from spacy import displacy
+
+# import en_core_web_trf
+# nlp = en_core_web_trf.load()
+
+nlp = spacy.load('en_core_web_trf')
+# nlp = spacy.load('en_core_web_sm')
+
 
 from rsyslog_cee import log
 from rsyslog_cee.logger import Logger,LoggerOptions
@@ -167,7 +178,33 @@ async def user_rankings_get(request,user_id=None,users_str=''):
   log.info(cf_tags.name,'user_rankings_get',{'user_id': user_id, 'ymin': cf_places.model.y_min, 'ymax': cf_places.model.y_max, 'results': results})
   log.oLogger.summary('server.user_rankings_get.Summary')
   return sanic_json(results)
-  
+
+@app.route('/ner/<text>',methods=['GET'])
+async def ner_get(request,text=None):
+  global nlp
+  text = urllib.parse.unquote(text,'utf-8')
+  reset_logger()
+  doc = nlp(text)
+  results = []
+  for ent in doc.ents:
+    results.append({'text': ent.text, 'start_char': ent.start_char, 'end_char': ent.end_char, 'label': ent.label_ })
+  log.info('ner_get',{'text': text,'results': results})
+  log.oLogger.summary('server.ner_get.Summary')
+  return sanic_json(results)
+
+@app.route('/ner',methods=['POST'])
+async def ner_post(request):
+  text = request.json.get('text')
+  global nlp
+  reset_logger()
+  doc = nlp(text)
+  results = []
+  for ent in doc.ents:
+    results.append({'text': ent.text, 'start_char': ent.start_char, 'end_char': ent.end_char, 'label': ent.label_ })
+  log.info('ner_post',{'text': text,'results': results})
+  log.oLogger.summary('server.ner_post.Summary')
+  return sanic_json(results)
+
 
 async def sub():
   global cf_events,cf_media,cf_places,cf_tags
