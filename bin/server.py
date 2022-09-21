@@ -205,6 +205,49 @@ async def ner_post(request):
   log.oLogger.summary('server.ner_post.Summary')
   return sanic_json(results)
 
+@app.route('/pos/<text>',methods=['GET'])
+async def pos_get(request,text=None):
+  global nlp
+  text = urllib.parse.unquote(text,'utf-8')
+  reset_logger()
+  doc = nlp(text)
+  results = []
+  for token in doc:
+    results.append({
+      'text': token.text,
+      'lemma': token.lemma_, 
+      'pos': token.pos_, 
+      'tag': token.tag_, 
+      'dep': token.dep_,
+      'shape': token.shape_, 
+      'is_alpha': token.is_alpha, 
+      'is_stop': token.is_stop 
+    })  
+  log.info('pos_get',{'text': text,'results': results})
+  log.oLogger.summary('server.ner_get.Summary')
+  return sanic_json(results)
+
+@app.route('/pos',methods=['POST'])
+async def pos_post(request):
+  text = request.json.get('text')
+  global nlp
+  reset_logger()
+  doc = nlp(text)
+  results = []
+  for token in doc:
+    results.append({
+      'text': token.text,
+      'lemma': token.lemma_, 
+      'pos': token.pos_, 
+      'tag': token.tag_, 
+      'dep': token.dep_,
+      'shape': token.shape_, 
+      'is_alpha': token.is_alpha, 
+      'is_stop': token.is_stop 
+    })  
+  log.info('pos_post',{'text': text,'results': results})
+  log.oLogger.summary('server.ner_post.Summary')
+  return sanic_json(results)
 
 async def sub():
   global cf_events,cf_media,cf_places,cf_tags
