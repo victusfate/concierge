@@ -11,18 +11,23 @@ import os
 import psutil
 import urllib.parse
 
+from os import path
+from pathlib import Path
+
+from rsyslog_cee import log
+from rsyslog_cee.logger import Logger,LoggerOptions
+
 import spacy
 from spacy import displacy
+
+import pysbd
+sbd_seg = pysbd.Segmenter(language="en", clean=False)
 
 # import en_core_web_trf
 # nlp = en_core_web_trf.load()
 
-nlp = spacy.load('en_core_web_trf')
 # nlp = spacy.load('en_core_web_sm')
-
-
-from rsyslog_cee import log
-from rsyslog_cee.logger import Logger,LoggerOptions
+nlp = spacy.load('en_core_web_trf')
 
 PORT = 5000
 
@@ -248,6 +253,61 @@ async def pos_post(request):
   log.info('pos_post',{'text': text,'results': results})
   log.oLogger.summary('server.ner_post.Summary')
   return sanic_json(results)
+
+@app.route('/spacy_seg/<text>',methods=['GET'])
+async def spacy_seg_get(request,text=None):
+  global nlp
+  text = urllib.parse.unquote(text,'utf-8')
+  reset_logger()
+  doc = nlp(text)
+  results = []
+  for sentence in doc.sents:
+    results.append({
+      'text': sentence.text,
+      'start': sentence.start_char, 
+      'end': sentence.end_char
+    })
+  log.info('spacy_seg_get',{'text': text,'results': results})
+  log.oLogger.summary('server.spacy_seg_get.Summary')
+  return sanic_json(results)
+
+@app.route('/spacy_seg',methods=['POST'])
+async def spacy_seg_post(request,text=None):
+  text = request.json.get('text')
+  global nlp
+  reset_logger()
+  doc = nlp(text)
+  results = []
+  for sentence in doc.sents:
+    results.append({
+      'text': sentence.text,
+      'start': sentence.start_char, 
+      'end': sentence.end_char
+    })
+  log.info('spacy_seg_post',{'text': text,'results': results})
+  log.oLogger.summary('server.spacy_seg_post.Summary')
+  return sanic_json(results)
+
+@app.route('/pysbd_seg/<text>',methods=['GET'])
+async def pysbd_seg_get(request,text=None):
+  global sbd_seg
+  text = urllib.parse.unquote(text,'utf-8')
+  reset_logger()
+  results = sbd_seg.segment(text)
+  log.info('pysbd_seg_get',{'text': text,'results': results})
+  log.oLogger.summary('server.pysbd_seg_get.Summary')
+  return sanic_json(results)
+
+@app.route('/pysbd_seg',methods=['POST'])
+async def pysbd_seg_post(request,text=None):
+  text = request.json.get('text')
+  global sbd_seg
+  reset_logger()
+  results = sbd_seg.segment(text)
+  log.info('pysbd_seg_post',{'text': text,'results': results})
+  log.oLogger.summary('server.pysbd_seg_post.Summary')
+  return sanic_json(results)
+
 
 async def sub():
   global cf_events,cf_media,cf_places,cf_tags
