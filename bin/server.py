@@ -308,6 +308,97 @@ async def pysbd_seg_post(request,text=None):
   log.oLogger.summary('server.pysbd_seg_post.Summary')
   return sanic_json(results)
 
+@app.route('/line_processor/<text>',methods=['GET'])
+async def line_processor_get(request,text=None):
+  global nlp
+  reset_logger()
+  text = urllib.parse.unquote(text,'utf-8')
+  doc = nlp(text)
+
+  result = {}  
+  # segmenter
+  segmenter_results = []
+  for sentence in doc.sents:
+    segmenter_results.append({
+      'text': sentence.text,
+      'start': sentence.start_char, 
+      'end': sentence.end_char
+    })
+  log.info('line_processor_get',{'text': text,'segmenter_results': segmenter_results})  
+  result['segmenter'] = segmenter_results
+
+  # pos
+  pos_results = []
+  for token in doc:
+    pos_results.append({
+      'text': token.text,
+      'lemma': token.lemma_, 
+      'pos': token.pos_, 
+      'tag': token.tag_, 
+      'dep': token.dep_,
+      'shape': token.shape_, 
+      'is_alpha': token.is_alpha, 
+      'is_stop': token.is_stop 
+    })  
+  log.info('line_processor_get',{'text': text,'pos_results': pos_results})
+  result['pos'] = pos_results
+
+  # ner
+  ner_results = []
+  for ent in doc.ents:
+    ner_results.append({'text': ent.text, 'start_char': ent.start_char, 'end_char': ent.end_char, 'label': ent.label_ })
+  log.info('line_processor_get',{'text': text,'ner_results': ner_results})
+  result['ner'] = ner_results
+
+  log.oLogger.summary('server.line_processor_get.Summary')
+  return sanic_json(result)
+
+@app.route('/line_processor',methods=['POST'])
+async def line_processor_post(request,text=None):
+  reset_logger()
+  global nlp
+  text = request.json.get('text')
+  doc = nlp(text)
+
+  result = {}  
+  # segmenter
+  segmenter_results = []
+  for sentence in doc.sents:
+    segmenter_results.append({
+      'text': sentence.text,
+      'start': sentence.start_char, 
+      'end': sentence.end_char
+    })
+  log.info('line_processor_post',{'text': text,'segmenter_results': segmenter_results})  
+  result['segmenter'] = segmenter_results
+
+  # pos
+  pos_results = []
+  for token in doc:
+    pos_results.append({
+      'text': token.text,
+      'lemma': token.lemma_, 
+      'pos': token.pos_, 
+      'tag': token.tag_, 
+      'dep': token.dep_,
+      'shape': token.shape_, 
+      'is_alpha': token.is_alpha, 
+      'is_stop': token.is_stop 
+    })  
+  log.info('line_processor_post',{'text': text,'pos_results': pos_results})
+  result['pos'] = pos_results
+
+  # ner
+  ner_results = []
+  for ent in doc.ents:
+    ner_results.append({'text': ent.text, 'start_char': ent.start_char, 'end_char': ent.end_char, 'label': ent.label_ })
+  log.info('line_processor_post',{'text': text,'ner_results': ner_results})
+  result['ner'] = ner_results
+
+  log.oLogger.summary('server.line_processor_post.Summary')
+  return sanic_json(result)
+
+
 
 async def sub():
   global cf_events,cf_media,cf_places,cf_tags
