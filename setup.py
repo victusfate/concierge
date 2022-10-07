@@ -11,8 +11,7 @@ reqs = [
   'redis==3.5.*',
   'aioredis==2.0.*',
   'numpy==1.22.*',
-  'spacy==3.4.*',
-  'pysbd==0.3.*'
+  'spacy==3.4.*'
 ]
 
 setup(

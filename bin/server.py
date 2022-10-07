@@ -20,8 +20,8 @@ from rsyslog_cee.logger import Logger,LoggerOptions
 import spacy
 from spacy import displacy
 
-import pysbd
-sbd_seg = pysbd.Segmenter(language="en", clean=False)
+# import pysbd
+# sbd_seg = pysbd.Segmenter(language="en", clean=False)
 
 # import en_core_web_trf
 # nlp = en_core_web_trf.load()
@@ -288,25 +288,25 @@ async def spacy_seg_post(request,text=None):
   log.oLogger.summary('server.spacy_seg_post.Summary')
   return sanic_json(results)
 
-@app.route('/pysbd_seg/<text>',methods=['GET'])
-async def pysbd_seg_get(request,text=None):
-  global sbd_seg
-  text = urllib.parse.unquote(text,'utf-8')
-  reset_logger()
-  results = sbd_seg.segment(text)
-  log.info('pysbd_seg_get',{'text': text,'results': results})
-  log.oLogger.summary('server.pysbd_seg_get.Summary')
-  return sanic_json(results)
+# @app.route('/pysbd_seg/<text>',methods=['GET'])
+# async def pysbd_seg_get(request,text=None):
+#   global sbd_seg
+#   text = urllib.parse.unquote(text,'utf-8')
+#   reset_logger()
+#   results = sbd_seg.segment(text)
+#   log.info('pysbd_seg_get',{'text': text,'results': results})
+#   log.oLogger.summary('server.pysbd_seg_get.Summary')
+#   return sanic_json(results)
 
-@app.route('/pysbd_seg',methods=['POST'])
-async def pysbd_seg_post(request,text=None):
-  text = request.json.get('text')
-  global sbd_seg
-  reset_logger()
-  results = sbd_seg.segment(text)
-  log.info('pysbd_seg_post',{'text': text,'results': results})
-  log.oLogger.summary('server.pysbd_seg_post.Summary')
-  return sanic_json(results)
+# @app.route('/pysbd_seg',methods=['POST'])
+# async def pysbd_seg_post(request,text=None):
+#   text = request.json.get('text')
+#   global sbd_seg
+#   reset_logger()
+#   results = sbd_seg.segment(text)
+#   log.info('pysbd_seg_post',{'text': text,'results': results})
+#   log.oLogger.summary('server.pysbd_seg_post.Summary')
+#   return sanic_json(results)
 
 @app.route('/line_processor/<text>',methods=['GET'])
 async def line_processor_get(request,text=None):
