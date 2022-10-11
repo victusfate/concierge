@@ -3,8 +3,8 @@ from rsyslog_cee import log
 import spacy
 from spacy import displacy
 
-# nlp = spacy.load('en_core_web_sm')
-nlp = spacy.load('en_core_web_trf')
+nlp = spacy.load('en_core_web_sm')
+# nlp = spacy.load('en_core_web_trf')
 
 class Transformers:
 

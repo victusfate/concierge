@@ -1,51 +1,31 @@
 FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get -qq -y update && apt-get -qq -y upgrade
-# RUN apt-get -qq -y install clang-format clang-tidy clang-tools clang clangd libc++-dev libc++1 libc++abi-dev libc++abi1 libclang-dev libclang1 liblldb-dev libllvm-ocaml-dev libomp-dev libomp5 lld lldb llvm-dev llvm-runtime llvm python-clang
 RUN apt-get -qq -y install sudo
 RUN apt-get -qq -y install curl
-RUN apt-get -qq -y install software-properties-common apt-utils build-essential
+# RUN apt-get -qq -y install software-properties-common apt-utils build-essential
+RUN apt-get -qq -y install software-properties-common
+RUN apt-get -qq -y install apt-utils
+# RUN apt-get -qq -y install build-essential
 RUN apt-get -qq -y install rsyslog htop vim git zip mediainfo woff-tools
-RUN add-apt-repository -y ppa:deadsnakes/ppa
-RUN apt-get -qq -y install python3.8-dev
+# RUN add-apt-repository -y ppa:deadsnakes/ppa
+# RUN apt-get -qq -y install python3.8-dev
+# RUN apt-get -qq -y install python3-pip
+RUN apt-get -qq -y install python3.8
 RUN apt-get -qq -y install python3-pip
 RUN pip3 install --upgrade pip
 RUN pip3 install --upgrade setuptools
 RUN pip3 install --upgrade awscli
-RUN pip3 install -v 'implicit==0.4.*'
-# RUN add-apt-repository -y ppa:chris-lea/nginx-devel # Includes request-id
 RUN apt-get -qq -y install bash
-# RUN apt-get -qq -y install nginx-full
-# RUN rm -f /etc/nginx/sites-enabled/default
 RUN apt-get -qq -y install libev-dev
 RUN apt-get -qq -y install jq
 RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
+# RUN apt-get install -qq -y lsb-release
 RUN apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
 RUN apt-get -qq -y update && apt-get -qq -y install consul
-# RUN update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++ 90
-# RUN export CC=/usr/bin/clang
-# RUN export CXX=/usr/bin/clang++
 
-RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - && apt-get update -y && apt-get install google-cloud-sdk -y
+# RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - && apt-get update -y && apt-get install google-cloud-sdk -y
 
-# RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-# RUN apt-get -qq -y install apt-transport-https ca-certificates gnupg
-# RUN curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-# # RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-# RUN apt-get -qq -y update && apt-get -qq -y install google-cloud-sdk
-
-# RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
-#   | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
-#   && sudo apt-get -qq -y install apt-transport-https ca-certificates gnupg \
-#   && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg \
-#   | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - \
-#   && sudo apt-get -qq -y update && sudo apt-get -qq -y install google-cloud-sdk
-
-# RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" \
-#   | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
-#   && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg \
-#   | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - \
-#   && apt-get -qq -y update && apt-get -qq -y install google-cloud-sdk
 RUN cd /root
 RUN curl -O https://releases.hashicorp.com/consul-template/0.25.2/consul-template_0.25.2_linux_amd64.tgz
 RUN tar -zxf consul-template_0.25.2_linux_amd64.tgz
