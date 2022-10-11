@@ -87,8 +87,6 @@ class Transformers:
       ner_results.append({'text': ent.text, 'start_char': ent.start_char, 'end_char': ent.end_char, 'label': ent.label_ })
     log.info('Transformers.line_processor',{'text': text,'ner_results': ner_results})
     result['ner'] = ner_results
-
-    log.oLogger.summary('server.line_processor.Summary')
     return result
 
   def splitter(text):
