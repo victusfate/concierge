@@ -238,6 +238,21 @@ async def line_processor_post(request,text=None):
   log.oLogger.summary('server.line_processor_post.Summary')
   return sanic_json(result)
 
+@app.route('/splitter/<text>',methods=['GET'])
+async def splitter_get(request,text=None):
+  reset_logger()
+  text = urllib.parse.unquote(text,'utf-8')
+  result = Transformers.splitter(text)
+  log.oLogger.summary('server.splitter_get.Summary')
+  return sanic_json(result)
+
+@app.route('/splitter',methods=['POST'])
+async def splitter_post(request,text=None):
+  reset_logger()
+  text = request.json.get('text')
+  result = Transformers.splitter(text)
+  log.oLogger.summary('server.splitter_post.Summary')
+  return sanic_json(result)
 
 async def sub():
   global cf_events,cf_media,cf_places,cf_tags
