@@ -17,17 +17,7 @@ from pathlib import Path
 from rsyslog_cee import log
 from rsyslog_cee.logger import Logger,LoggerOptions
 
-import spacy
-from spacy import displacy
-
-# import pysbd
-# sbd_seg = pysbd.Segmenter(language="en", clean=False)
-
-# import en_core_web_trf
-# nlp = en_core_web_trf.load()
-
-# nlp = spacy.load('en_core_web_sm')
-nlp = spacy.load('en_core_web_trf')
+from concierge.transformers import Transformers
 
 PORT = 5000
 
@@ -186,188 +176,67 @@ async def user_rankings_get(request,user_id=None,users_str=''):
 
 @app.route('/ner/<text>',methods=['GET'])
 async def ner_get(request,text=None):
-  global nlp
-  text = urllib.parse.unquote(text,'utf-8')
   reset_logger()
-  doc = nlp(text)
-  results = []
-  for ent in doc.ents:
-    results.append({'text': ent.text, 'start_char': ent.start_char, 'end_char': ent.end_char, 'label': ent.label_ })
-  log.info('ner_get',{'text': text,'results': results})
+  text = urllib.parse.unquote(text,'utf-8')
+  results = Transformers.ner(text)
   log.oLogger.summary('server.ner_get.Summary')
   return sanic_json(results)
 
 @app.route('/ner',methods=['POST'])
 async def ner_post(request):
-  text = request.json.get('text')
-  global nlp
   reset_logger()
-  doc = nlp(text)
-  results = []
-  for ent in doc.ents:
-    results.append({'text': ent.text, 'start_char': ent.start_char, 'end_char': ent.end_char, 'label': ent.label_ })
-  log.info('ner_post',{'text': text,'results': results})
+  text = request.json.get('text')
+  results = Transformers.ner(text)
   log.oLogger.summary('server.ner_post.Summary')
   return sanic_json(results)
 
 @app.route('/pos/<text>',methods=['GET'])
 async def pos_get(request,text=None):
-  global nlp
-  text = urllib.parse.unquote(text,'utf-8')
   reset_logger()
-  doc = nlp(text)
-  results = []
-  for token in doc:
-    results.append({
-      'text': token.text,
-      'lemma': token.lemma_, 
-      'pos': token.pos_, 
-      'tag': token.tag_, 
-      'dep': token.dep_,
-      'shape': token.shape_, 
-      'is_alpha': token.is_alpha, 
-      'is_stop': token.is_stop 
-    })  
-  log.info('pos_get',{'text': text,'results': results})
+  text = urllib.parse.unquote(text,'utf-8')
+  results = Transformers.pos(text)
   log.oLogger.summary('server.ner_get.Summary')
   return sanic_json(results)
 
 @app.route('/pos',methods=['POST'])
 async def pos_post(request):
-  text = request.json.get('text')
-  global nlp
   reset_logger()
-  doc = nlp(text)
-  results = []
-  for token in doc:
-    results.append({
-      'text': token.text,
-      'lemma': token.lemma_, 
-      'pos': token.pos_, 
-      'tag': token.tag_, 
-      'dep': token.dep_,
-      'shape': token.shape_, 
-      'is_alpha': token.is_alpha, 
-      'is_stop': token.is_stop 
-    })  
-  log.info('pos_post',{'text': text,'results': results})
+  text = request.json.get('text')
+  results = Transformers.pos(text)
   log.oLogger.summary('server.ner_post.Summary')
   return sanic_json(results)
 
 @app.route('/spacy_seg/<text>',methods=['GET'])
 async def spacy_seg_get(request,text=None):
-  global nlp
-  text = urllib.parse.unquote(text,'utf-8')
   reset_logger()
-  doc = nlp(text)
-  results = []
-  for sentence in doc.sents:
-    results.append({
-      'text': sentence.text,
-      'start': sentence.start_char, 
-      'end': sentence.end_char
-    })
-  log.info('spacy_seg_get',{'text': text,'results': results})
+  text = urllib.parse.unquote(text,'utf-8')
+  results = Transformers.seg(text)
   log.oLogger.summary('server.spacy_seg_get.Summary')
   return sanic_json(results)
 
 @app.route('/spacy_seg',methods=['POST'])
 async def spacy_seg_post(request,text=None):
-  text = request.json.get('text')
-  global nlp
   reset_logger()
-  doc = nlp(text)
-  results = []
-  for sentence in doc.sents:
-    results.append({
-      'text': sentence.text,
-      'start': sentence.start_char, 
-      'end': sentence.end_char
-    })
-  log.info('spacy_seg_post',{'text': text,'results': results})
+  text = request.json.get('text')
+  results = Transformers.seg(text)
   log.oLogger.summary('server.spacy_seg_post.Summary')
   return sanic_json(results)
 
-# @app.route('/pysbd_seg/<text>',methods=['GET'])
-# async def pysbd_seg_get(request,text=None):
-#   global sbd_seg
-#   text = urllib.parse.unquote(text,'utf-8')
-#   reset_logger()
-#   results = sbd_seg.segment(text)
-#   log.info('pysbd_seg_get',{'text': text,'results': results})
-#   log.oLogger.summary('server.pysbd_seg_get.Summary')
-#   return sanic_json(results)
-
-# @app.route('/pysbd_seg',methods=['POST'])
-# async def pysbd_seg_post(request,text=None):
-#   text = request.json.get('text')
-#   global sbd_seg
-#   reset_logger()
-#   results = sbd_seg.segment(text)
-#   log.info('pysbd_seg_post',{'text': text,'results': results})
-#   log.oLogger.summary('server.pysbd_seg_post.Summary')
-#   return sanic_json(results)
-
-def line_processor(text):
-  global nlp
-  doc = nlp(text)
-
-  result = {}  
-  # segmenter
-  segmenter_results = []
-  for sentence in doc.sents:
-    segmenter_results.append({
-      'text': sentence.text,
-      'start': sentence.start_char, 
-      'end': sentence.end_char
-    })
-  log.info('line_processor_get',{'text': text,'segmenter_results': segmenter_results})  
-  result['segmenter'] = segmenter_results
-
-  # pos
-  pos_results = []
-  for token in doc:
-    pos_results.append({
-      'text': token.text,
-      'lemma': token.lemma_, 
-      'pos': token.pos_, 
-      'tag': token.tag_, 
-      'dep': token.dep_,
-      'shape': token.shape_, 
-      'is_alpha': token.is_alpha, 
-      'is_stop': token.is_stop 
-    })  
-  log.info('line_processor_get',{'text': text,'pos_results': pos_results})
-  result['pos'] = pos_results
-
-  # ner
-  ner_results = []
-  for ent in doc.ents:
-    ner_results.append({'text': ent.text, 'start_char': ent.start_char, 'end_char': ent.end_char, 'label': ent.label_ })
-  log.info('line_processor_get',{'text': text,'ner_results': ner_results})
-  result['ner'] = ner_results
-
-  log.oLogger.summary('server.line_processor_get.Summary')
-  return result
-
 @app.route('/line_processor/<text>',methods=['GET'])
 async def line_processor_get(request,text=None):
-  global nlp
   reset_logger()
   text = urllib.parse.unquote(text,'utf-8')
-  result = line_processor(text)
+  result = Transformers.line_processor(text)
   log.oLogger.summary('server.line_processor_get.Summary')
   return sanic_json(result)
 
 @app.route('/line_processor',methods=['POST'])
 async def line_processor_post(request,text=None):
   reset_logger()
-  global nlp
   text = request.json.get('text')
-  result = line_processor(text)
+  result = Transformers.line_processor(text)
   log.oLogger.summary('server.line_processor_post.Summary')
   return sanic_json(result)
-
 
 
 async def sub():
