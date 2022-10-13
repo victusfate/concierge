@@ -32,7 +32,7 @@ jobs:
       - name: Get First Tag
         id: tag
         run: |
-          echo "TAGNAME=$(echo '${{ steps.build.outputs.TAGS }}' | cut -d ',' -f1)" >> $GITHUB_ENV
+          echo "TAGNAME=$(echo '${{ steps.build.outputs.TAGS }}' | cut -d ',' -f1)" >> $GITHUB_OUTPUT
       
       - name: Write Param
         id: param
