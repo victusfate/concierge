@@ -222,27 +222,27 @@ async def spacy_seg_post(request,text=None):
   log.oLogger.summary('server.spacy_seg_post.Summary')
   return sanic_json(results)
 
-@app.route('/line_processor/<text>',methods=['GET'])
-async def line_processor_get(request,text=None):
+@app.route('/ner_pos/<text>',methods=['GET'])
+async def ner_pos_get(request,text=None):
   reset_logger()
   text = urllib.parse.unquote(text,'utf-8')
-  result = Transformers.line_processor(text)
-  log.oLogger.summary('server.line_processor_get.Summary')
+  result = Transformers.ner_pos(text)
+  log.oLogger.summary('server.ner_pos_get.Summary')
   return sanic_json(result)
 
-@app.route('/line_processor',methods=['POST'])
-async def line_processor_post(request,text=None):
+@app.route('/ner_pos',methods=['POST'])
+async def ner_pos_post(request,text=None):
   reset_logger()
   text = request.json.get('text')
-  result = Transformers.line_processor(text)
-  log.oLogger.summary('server.line_processor_post.Summary')
+  result = Transformers.ner_pos(text)
+  log.oLogger.summary('server.ner_pos_post.Summary')
   return sanic_json(result)
 
 @app.route('/splitter/<text>',methods=['GET'])
 async def splitter_get(request,text=None):
   reset_logger()
   text = urllib.parse.unquote(text,'utf-8')
-  result = Transformers.splitter(text)
+  result = Transformers.seg(text)
   log.oLogger.summary('server.splitter_get.Summary')
   return sanic_json(result)
 
@@ -250,7 +250,7 @@ async def splitter_get(request,text=None):
 async def splitter_post(request,text=None):
   reset_logger()
   text = request.json.get('text')
-  result = Transformers.splitter(text)
+  result = Transformers.seg(text)
   log.oLogger.summary('server.splitter_post.Summary')
   return sanic_json(result)
 

@@ -48,22 +48,11 @@ class Transformers:
     log.info('Transformers.seg',{'text': text,'results': results})
     return results
 
-
-  def line_processor(text):
+  def ner_pos(text):
     global nlp
     doc = nlp(text)
 
     result = {}  
-    # segmenter
-    segmenter_results = []
-    for sentence in doc.sents:
-      segmenter_results.append({
-        'text': sentence.text,
-        'start': sentence.start_char, 
-        'end': sentence.end_char
-      })
-    log.info('Transformers.line_processor',{'text': text,'segmenter_results': segmenter_results})  
-    result['seg'] = segmenter_results
 
     # pos
     pos_results = []
@@ -88,6 +77,3 @@ class Transformers:
     log.info('Transformers.line_processor',{'text': text,'ner_results': ner_results})
     result['ner'] = ner_results
     return result
-
-  def splitter(text):
-    return Transformers.line_processor(text)
