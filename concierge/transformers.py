@@ -32,7 +32,7 @@ class Transformers:
         'is_alpha': token.is_alpha, 
         'is_stop': token.is_stop,
         'start_char': token.idx,
-        'end_char': token.idx + len(token.text) - 1
+        'end_char': token.idx + len(token.text) - 2
       })  
     log.info('Transformers.pos',{'text': text,'results': results})
     return results
@@ -69,7 +69,7 @@ class Transformers:
         'is_alpha': token.is_alpha, 
         'is_stop': token.is_stop,
         'start_char': token.idx,
-        'end_char': token.idx + len(token.text) - 1
+        'end_char': token.idx + len(token.text) - 2
       })  
     log.info('Transformers.line_processor',{'text': text,'pos_results': pos_results})
     result['pos'] = pos_results
