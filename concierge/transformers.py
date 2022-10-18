@@ -30,7 +30,9 @@ class Transformers:
         'dep': token.dep_,
         'shape': token.shape_, 
         'is_alpha': token.is_alpha, 
-        'is_stop': token.is_stop 
+        'is_stop': token.is_stop,
+        'start_char': token.idx,
+        'end_char': token.idx + len(token.text) - 1
       })  
     log.info('Transformers.pos',{'text': text,'results': results})
     return results
@@ -65,7 +67,9 @@ class Transformers:
         'dep': token.dep_,
         'shape': token.shape_, 
         'is_alpha': token.is_alpha, 
-        'is_stop': token.is_stop 
+        'is_stop': token.is_stop,
+        'start_char': token.idx,
+        'end_char': token.idx + len(token.text) - 1
       })  
     log.info('Transformers.line_processor',{'text': text,'pos_results': pos_results})
     result['pos'] = pos_results
