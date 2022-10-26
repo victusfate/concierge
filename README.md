@@ -9,4 +9,8 @@ Live:
 1. using [river-ml](https://riverml.xyz/)
 2. using [sanic](https://sanic.readthedocs.io/)
 
+## added text processing endpoints
+
+Leveraging Spacy for Sentence splitting, Named Entity Recogition, and Parts of Speech
+
 Released under the MIT License
