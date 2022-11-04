@@ -17,8 +17,6 @@ from pathlib import Path
 from rsyslog_cee import log
 from rsyslog_cee.logger import Logger,LoggerOptions
 
-from concierge.transformers import Transformers
-
 PORT = 5000
 
 tStart = time.time()
@@ -173,70 +171,6 @@ async def user_rankings_get(request,user_id=None,users_str=''):
   log.info(cf_tags.name,'user_rankings_get',{'user_id': user_id, 'ymin': cf_places.model.y_min, 'ymax': cf_places.model.y_max, 'results': results})
   log.oLogger.summary('server.user_rankings_get.Summary')
   return sanic_json(results)
-
-@app.route('/ner/<text>',methods=['GET'])
-async def ner_get(request,text=None):
-  reset_logger()
-  text = urllib.parse.unquote(text,'utf-8')
-  results = Transformers.ner(text)
-  log.oLogger.summary('server.ner_get.Summary')
-  return sanic_json(results)
-
-@app.route('/ner',methods=['POST'])
-async def ner_post(request):
-  reset_logger()
-  text = request.json.get('text')
-  results = Transformers.ner(text)
-  log.oLogger.summary('server.ner_post.Summary')
-  return sanic_json(results)
-
-@app.route('/pos/<text>',methods=['GET'])
-async def pos_get(request,text=None):
-  reset_logger()
-  text = urllib.parse.unquote(text,'utf-8')
-  results = Transformers.pos(text)
-  log.oLogger.summary('server.ner_get.Summary')
-  return sanic_json(results)
-
-@app.route('/pos',methods=['POST'])
-async def pos_post(request):
-  reset_logger()
-  text = request.json.get('text')
-  results = Transformers.pos(text)
-  log.oLogger.summary('server.ner_post.Summary')
-  return sanic_json(results)
-
-@app.route('/spacy_seg/<text>',methods=['GET'])
-async def spacy_seg_get(request,text=None):
-  reset_logger()
-  text = urllib.parse.unquote(text,'utf-8')
-  results = Transformers.seg(text)
-  log.oLogger.summary('server.spacy_seg_get.Summary')
-  return sanic_json(results)
-
-@app.route('/spacy_seg',methods=['POST'])
-async def spacy_seg_post(request,text=None):
-  reset_logger()
-  text = request.json.get('text')
-  results = Transformers.seg(text)
-  log.oLogger.summary('server.spacy_seg_post.Summary')
-  return sanic_json(results)
-
-@app.route('/ner_pos/<text>',methods=['GET'])
-async def ner_pos_get(request,text=None):
-  reset_logger()
-  text = urllib.parse.unquote(text,'utf-8')
-  result = Transformers.ner_pos(text)
-  log.oLogger.summary('server.ner_pos_get.Summary')
-  return sanic_json(result)
-
-@app.route('/ner_pos',methods=['POST'])
-async def ner_pos_post(request,text=None):
-  reset_logger()
-  text = request.json.get('text')
-  result = Transformers.ner_pos(text)
-  log.oLogger.summary('server.ner_pos_post.Summary')
-  return sanic_json(result)
 
 async def sub():
   global cf_events,cf_media,cf_places,cf_tags

@@ -4,9 +4,5 @@ ENV DEBIAN_FRONTEND noninteractive
 WORKDIR /var/www/concierge
 COPY ./requirements.txt /var/www/concierge/requirements.txt
 RUN pip install -v -r requirements.txt --no-cache
-RUN python3 -m spacy download en_core_web_sm
-# RUN python3 -m spacy download en_core_web_trf
 
-# RUN pip install -v -r https://github.com/explosion/spacy-models/releases/download/en_core_web_trf-3.4.0/en_core_web_trf-3.4.0.tar.gz
-# RUN pip install -v -r https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.4.0/en_core_web_sm-3.4.0.tar.gz
 ENV PYTHONPATH='/var/www/concierge/:$PYTHONPATH'
