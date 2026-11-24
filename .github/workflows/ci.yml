@@ -3,6 +3,7 @@ name: CI
 # The old workflow built an image and deployed it to infrastructure that is long inactive. This one only
 # checks the code: nothing is built, pushed or deployed, and it needs no secrets.
 on:
+  workflow_dispatch:
   pull_request:
   push:
     branches:
