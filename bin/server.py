@@ -177,7 +177,7 @@ async def sub():
   event_sub_future = cf_events.subscribe_to_updates(constants.EVENTS_CHANNEL)
   media_sub_future = cf_media.subscribe_to_updates(constants.MEDIA_CHANNEL)
   place_sub_future = cf_places.subscribe_to_updates(constants.PLACE_CHANNEL)
-  tag_sub_future = cf_events.subscribe_to_updates(constants.TAG_CHANNEL)
+  tag_sub_future = cf_tags.subscribe_to_updates(constants.TAG_CHANNEL)
   results = await asyncio.gather(event_sub_future,media_sub_future,place_sub_future,tag_sub_future,return_exceptions=True)
   return results
 
